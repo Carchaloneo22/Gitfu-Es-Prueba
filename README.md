@@ -1,4 +1,4 @@
-# Gitfu - Sistema Embebido de Evaluación de Cuentas de GitHub
+# Gitfu- Es - Sistema Embebido de Evaluación de Cuentas de GitHub
 
 ![GitHub stars](https://img.shields.io/github/stars/Carchaloneo22/Gitfu--en-espa-ol-2?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/Carchaloneo22/Gitfu--en-espa-ol-2?style=social)
