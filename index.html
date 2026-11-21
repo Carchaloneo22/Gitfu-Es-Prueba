@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitFut ES | Tu Carta de Jugador y Auditoría de Repositorios GitHub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Oswald (Deportiva/FUT) e Inter (UI moderna) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- html2canvas para exportar la carta como imagen PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        fut: ['Oswald', 'sans-serif'],
+                    },
+                    colors: {
+                        stadium: {
+                            950: '#070b14',
+                            900: '#0d1322',
+                            800: '#151f36',
+                            700: '#1e2c4a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos personalizados para las cartas FUT y efectos holográficos */
+        body {
+            background-color: #070b14;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
+                linear-gradient(to bottom, #070b14, #0b1120);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Contenedor 3D de la carta */
+        .fut-card-wrapper {
+            perspective: 1200px;
+        }
+
+        .fut-card {
+            width: 310px;
+            height: 455px;
+            position: relative;
+            border-radius: 26px 26px 42px 42px;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .fut-card-sm {
+            width: 280px;
+            height: 415px;
+        }
+
+        /* Brillo holográfico dinámico */
+        .fut-card-glare {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 45%, transparent 75%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .fut-card:hover .fut-card-glare {
+            opacity: 1;
+        }
+
+        /* Patrón geométrico interno de carta FUT */
+        .fut-card-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.04) 0px,
+                rgba(255, 255, 255, 0.04) 2px,
+                transparent 2px,
+                transparent 12px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Temas de Rareza de Carta */
+        /* Bronce (< 65) */
+        .tier-bronze {
+            background: linear-gradient(145deg, #6e4730 0%, #a9714b 45%, #5c3a24 100%);
+            border: 3px solid #d49b72;
+            color: #261409;
+            box-shadow: 0 20px 45px -10px rgba(169, 113, 75, 0.45);
+        }
+        .tier-bronze .card-divider { background-color: rgba(38, 20, 9, 0.28); }
+        .tier-bronze .stat-label { color: #3d2110; }
+
+        /* Plata (65 - 74) */
+        .tier-silver {
+            background: linear-gradient(145deg, #7c8796 0%, #d1d8e0 48%, #636e7b 100%);
+            border: 3px solid #f1f5f9;
+            color: #161d26;
+            box-shadow: 0 20px 45px -10px rgba(203, 213, 225, 0.4);
+        }
+        .tier-silver .card-divider { background-color: rgba(22, 29, 38, 0.25); }
+        .tier-silver .stat-label { color: #2c3847; }
+
+        /* Oro (75 - 84) */
+        .tier-gold {
+            background: linear-gradient(145deg, #9c7419 0%, #f5d061 48%, #8f6812 100%);
+            border: 3px solid #fef08a;
+            color: #291d03;
+            box-shadow: 0 20px 50px -10px rgba(245, 208, 97, 0.5);
+        }
+        .tier-gold .card-divider { background-color: rgba(41, 29, 3, 0.25); }
+        .tier-gold .stat-label { color: #473307; }
+
+        /* Especial / TOTY (85 - 89) */
+        .tier-special {
+            background: linear-gradient(145deg, #091538 0%, #1d4ed8 45%, #06b6d4 85%, #071029 100%);
+            border: 3px solid #38bdf8;
+            color: #f8fafc;
+            box-shadow: 0 20px 55px -8px rgba(14, 165, 233, 0.55);
+        }
+        .tier-special .card-divider { background-color: rgba(125, 211, 252, 0.35); }
+        .tier-special .stat-label { color: #bae6fd; }
+
+        /* Ícono (90+) */
+        .tier-icon {
+            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 42%, #cbd5e1 75%, #94a3b8 100%);
+            border: 3px solid #eab308;
+            color: #1e293b;
+            box-shadow: 0 20px 60px -8px rgba(234, 179, 8, 0.6);
+        }
+        .tier-icon .card-divider { background-color: rgba(180, 130, 15, 0.4); }
+        .tier-icon .stat-label { color: #475569; }
+        .tier-icon .ovr-highlight { color: #9a6b06; }
+
+        /* Animación de pulso dorado para el ganador del duelo */
+        @keyframes winnerGlow {
+            0%, 100% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.35); }
+            50% { box-shadow: 0 0 45px rgba(245, 158, 11, 0.7); }
+        }
+        .winner-highlight {
+            animation: winnerGlow 2.5s infinite ease-in-out;
+        }
+
+        /* Scrollbar estilizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1322;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #283655;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b4f7a;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Notificación Toast Flotante (Reemplaza alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Barra de Navegación Superior -->
+    <header class="border-b border-slate-800/80 bg-stadium-950/85 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:h-16 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-futbol text-white text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-fut text-2xl font-bold tracking-wider uppercase text-white">Git<span class="text-emerald-400">Fut</span> <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-md align-middle">ES</span></span>
+                    <p class="text-[11px] text-slate-400 -mt-1 hidden md:block">Carta Ultimate Team, Duelos 1v1 & Auditoría GitHub</p>
+                </div>
+            </div>
+
+            <!-- Selector de Modo: Perfil Individual vs Modo Duelo 1v1 (VS) -->
+            <div class="flex items-center bg-stadium-900 border border-slate-800 p-1 rounded-xl order-3 sm:order-2 w-full sm:w-auto justify-center">
+                <button id="mode-single-btn" type="button" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-emerald-500 text-slate-950 shadow cursor-pointer">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Perfil Individual</span>
+                </button>
+                <button id="mode-vs-btn" type="button" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 text-slate-300 hover:text-white cursor-pointer">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    <span>Modo Duelo 1v1 (VS)</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2.5 order-2 sm:order-3">
+                <span id="rate-limit-badge" class="text-xs bg-slate-800/90 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-2" title="Límite de consultas restante de la API de GitHub">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    <span id="rate-limit-text">API Pública</span>
+                </span>
+                <button id="toggle-token-btn" type="button" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-key text-emerald-400"></i>
+                    <span class="hidden sm:inline">Token API</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Colapsable para Token Personal de GitHub (PAT) -->
+        <div id="token-panel" class="hidden border-t border-slate-800 bg-stadium-900/95">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-xs text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
+                    <span>Opcional: Agrega un <strong>Personal Access Token (PAT)</strong> de GitHub para ampliar el límite de 60 a 5,000 peticiones/hora. Se guarda solo en tu navegador.</span>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="password" id="github-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-64 focus:outline-none focus:border-emerald-500">
+                    <button id="save-token-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition whitespace-nowrap">Guardar</button>
+                    <button id="clear-token-btn" class="bg-slate-800 hover:bg-rose-600/80 text-slate-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg transition" title="Eliminar token">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ===================================================================== -->
+        <!-- VISTA 1: MODO PERFIL INDIVIDUAL                                       -->
+        <!-- ===================================================================== -->
+        <div id="single-mode-container">
+            <!-- Buscador de Perfil de GitHub -->
+            <section class="max-w-3xl mx-auto mb-10 text-center">
+                <h1 class="font-fut text-3xl sm:text-5xl font-bold uppercase tracking-tight text-white mb-3">
+                    Convierte tu Código en una <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Carta de Élite</span>
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base mb-6 max-w-2xl mx-auto">
+                    Analizamos en tiempo real tus repositorios, estrellas, issues, pull requests y frecuencia de pushes desde la API oficial de GitHub para calcular tu media FUT, auditar tus proyectos y darte un plan para subir de nivel.
+                </p>
+
+                <form id="search-form" class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-brands fa-github text-lg"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="username-input" 
+                            placeholder="Ingresa usuario de GitHub (ej. Younesfdj)..." 
+                            required
+                            autocomplete="off"
+                            class="w-full pl-11 pr-4 py-3.5 bg-stadium-900 border border-slate-700/90 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500 transition shadow-inner"
+                        >
+                    </div>
+                    <button 
+                        type="submit" 
+                        id="analyze-btn"
+                        class="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        <span>Generar Carta</span>
+                    </button>
+                </form>
+
+                <!-- Botones de prueba rápida -->
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+                    <span>Prueba rápida:</span>
+                    <button type="button" data-user="Younesfdj" class="quick-user-btn px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition cursor-pointer">@Younesfdj</button>
+                    <button type="button" data-user="torvalds" class="quick-user-btn px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition cursor-pointer">@torvalds</button>
+                    <button type="button" data-user="gaearon" class="quick-user-btn px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition cursor-pointer">@gaearon</button>
+                    <button type="button" data-user="midudev" class="quick-user-btn px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition cursor-pointer">@midudev</button>
+                </div>
+            </section>
+
+            <!-- Estado de Carga (Spinner) -->
+            <div id="loading-state" class="hidden py-16 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-stadium-800 border border-slate-700 mb-4 shadow-xl">
+                    <i class="fa-solid fa-futbol fa-spin text-3xl text-emerald-400"></i>
+                </div>
+                <h3 class="font-fut text-xl uppercase tracking-wide text-white mb-1" id="loading-title">Ojeando perfil en GitHub...</h3>
+                <p class="text-sm text-slate-400" id="loading-subtitle">Obteniendo repositorios, eventos de push, pull requests e issues</p>
+            </div>
+
+            <!-- Estado de Error -->
+            <div id="error-state" class="hidden max-w-xl mx-auto my-8 bg-rose-950/40 border border-rose-500/40 rounded-2xl p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-1" id="error-title">No se pudo evaluar el perfil</h3>
+                <p class="text-sm text-rose-200/80 mb-4" id="error-message">Verifica que el usuario exista o intenta nuevamente.</p>
+            </div>
+
+            <!-- Dashboard de Resultados Individuales -->
+            <div id="results-dashboard" class="hidden space-y-10">
+
+                <!-- Fila 1: Carta FUT + Métricas Globales + Trofeos -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                    <!-- Columna Izquierda: Carta 3D Estilo FUT -->
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        <div class="fut-card-wrapper mb-5">
+                            <div id="fut-card" class="fut-card tier-gold p-5 flex flex-col justify-between shadow-2xl">
+                                <div class="fut-card-pattern"></div>
+                                <div class="fut-card-glare"></div>
+
+                                <!-- Parte Superior de la Carta: Rating, Posición, Avatar -->
+                                <div class="relative z-10 flex items-start justify-between pt-1">
+                                    <div class="flex flex-col items-center w-20 text-center">
+                                        <span id="card-ovr" class="font-fut text-5xl font-bold leading-none tracking-tighter ovr-highlight">84</span>
+                                        <span id="card-pos" class="font-fut text-xl font-bold uppercase tracking-wider mt-0.5">MCO</span>
+                                        <div class="w-8 h-[1.5px] card-divider my-1.5"></div>
+                                        <div id="card-lang-badge" class="w-8 h-8 rounded-full bg-black/15 flex items-center justify-center text-sm font-bold" title="Lenguaje Principal">
+                                            <i class="fa-solid fa-code"></i>
+                                        </div>
+                                        <span id="card-tier-label" class="text-[9px] font-extrabold uppercase tracking-widest mt-1.5 opacity-80">ORO</span>
+                                    </div>
+
+                                    <div class="relative mr-3 mt-1">
+                                        <div class="w-36 h-36 rounded-full p-1 bg-gradient-to-b from-white/50 to-black/20 shadow-lg">
+                                            <img id="card-avatar" src="https://placehold.co/200x200/1e293b/ffffff?text=GH" crossorigin="anonymous" alt="Avatar GitHub" class="w-full h-full object-cover rounded-full bg-slate-900">
+                                        </div>
+                                        <div id="card-quality-pill" class="absolute -bottom-2 right-0 px-2.5 py-0.5 rounded-full bg-slate-950/90 text-emerald-400 border border-emerald-400/50 text-[10px] font-bold shadow-md">
+                                            CALIDAD S
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Nombre y Arquetipo -->
+                                <div class="relative z-10 text-center mt-2">
+                                    <h2 id="card-name" class="font-fut text-2xl font-bold uppercase tracking-wide truncate px-2">DESARROLLADOR</h2>
+                                    <p id="card-archetype" class="text-[11px] font-semibold uppercase tracking-widest opacity-85 truncate px-3">Arquitecto de Código</p>
+                                    <div class="w-4/5 h-[1.5px] card-divider mx-auto my-2"></div>
+                                </div>
+
+                                <!-- 6 Estadísticas Principales FUT -->
+                                <div class="relative z-10 grid grid-cols-2 gap-x-4 px-4 font-fut text-lg">
+                                    <div class="space-y-1 border-r border-current/20 pr-3">
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-rit" class="font-bold text-xl">85</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">RIT</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-tir" class="font-bold text-xl">82</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">TIR</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-pas" class="font-bold text-xl">88</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">PAS</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1 pl-1">
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-reg" class="font-bold text-xl">84</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">REG</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-def" class="font-bold text-xl">79</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">DEF</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span id="stat-fis" class="font-bold text-xl">81</span>
+                                            <span class="stat-label text-sm font-semibold tracking-wider">FÍS</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pie de la Carta -->
+                                <div class="relative z-10 text-center pt-1 pb-0.5 flex items-center justify-center gap-2 opacity-75 text-[10px] font-bold tracking-widest uppercase">
+                                    <i class="fa-brands fa-github"></i>
+                                    <span id="card-username">@usuario</span>
+                                    <span>•</span>
+                                    <span>GITFUT ES</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción debajo de la Carta -->
+                        <div class="flex flex-wrap items-center justify-center gap-3 w-full max-w-xs">
+                            <button id="download-card-btn" type="button" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-download text-emerald-400"></i>
+                                <span>Descargar PNG</span>
+                            </button>
+                            <button id="copy-summary-btn" type="button" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-copy text-cyan-400"></i>
+                                <span>Copiar Ficha</span>
+                            </button>
+                        </div>
+
+                        <!-- Acceso rápido a retar este usuario en Modo VS -->
+                        <button id="challenge-user-btn" type="button" class="mt-3 w-full max-w-xs bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Retar este perfil en Duelo 1v1 (VS)</span>
+                        </button>
+                    </div>
+
+                    <!-- Columna Derecha: Desglose de Rendimiento, Contadores API y Vitrina de Trofeos -->
+                    <div class="lg:col-span-7 space-y-6">
+
+                        <!-- Encabezado del Jugador y Enlace a GitHub -->
+                        <div class="bg-stadium-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+                                <div>
+                                    <div class="flex items-center gap-2.5 flex-wrap">
+                                        <h3 id="profile-fullname" class="text-xl font-bold text-white">Nombre del Desarrollador</h3>
+                                        <span id="profile-badge-rarity" class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">Carta Oro</span>
+                                    </div>
+                                    <p id="profile-bio" class="text-sm text-slate-400 mt-1">Biografía del perfil de GitHub...</p>
+                                    <div class="flex flex-wrap items-center gap-4 mt-2.5 text-xs text-slate-400">
+                                        <span id="profile-location"><i class="fa-solid fa-location-dot text-slate-500 mr-1"></i> Sin ubicación</span>
+                                        <span id="profile-joined"><i class="fa-regular fa-calendar text-slate-500 mr-1"></i> Miembro desde 2020</span>
+                                        <span id="profile-followers"><i class="fa-solid fa-users text-slate-500 mr-1"></i> 0 seguidores</span>
+                                    </div>
+                                </div>
+                                <a id="profile-github-link" href="https://github.com" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-white flex items-center gap-2 self-start sm:self-center transition">
+                                    <span>Ver en GitHub</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+                                </a>
+                            </div>
+
+                            <!-- Tarjetas de Métricas Clave Extraídas de la API -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5">
+                                <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5">
+                                    <div class="flex items-center justify-between text-amber-400 mb-1">
+                                        <span class="text-xs font-medium text-slate-400">Estrellas Totales</span>
+                                        <i class="fa-solid fa-star"></i>
+                                    </div>
+                                    <p id="metric-stars" class="font-fut text-2xl font-bold text-white">0</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Impacto y popularidad</p>
+                                </div>
+
+                                <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5">
+                                    <div class="flex items-center justify-between text-purple-400 mb-1">
+                                        <span class="text-xs font-medium text-slate-400">Pull Requests</span>
+                                        <i class="fa-solid fa-code-pull-request"></i>
+                                    </div>
+                                    <p id="metric-prs" class="font-fut text-2xl font-bold text-white">0</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Colaboración histórica</p>
+                                </div>
+
+                                <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5">
+                                    <div class="flex items-center justify-between text-emerald-400 mb-1">
+                                        <span class="text-xs font-medium text-slate-400">Issues Creados/Abiertos</span>
+                                        <i class="fa-solid fa-circle-dot"></i>
+                                    </div>
+                                    <p id="metric-issues" class="font-fut text-2xl font-bold text-white">0</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Gestión y reporte</p>
+                                </div>
+
+                                <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5">
+                                    <div class="flex items-center justify-between text-cyan-400 mb-1">
+                                        <span class="text-xs font-medium text-slate-400">Pushes / Commits Rec.</span>
+                                        <i class="fa-solid fa-code-commit"></i>
+                                    </div>
+                                    <p id="metric-pushes" class="font-fut text-2xl font-bold text-white">0</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Actividad en últimos eventos</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Explicación de las 6 Estadísticas de la Carta -->
+                        <div class="bg-stadium-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-fut text-lg uppercase tracking-wide text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-simple text-emerald-400"></i>
+                                    <span>Desglose Técnico de Atributos FUT</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">Escala logarítmica anti-spam (0-99)</span>
+                            </div>
+
+                            <div id="attributes-breakdown" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Se rellena dinámicamente con barras de progreso -->
+                            </div>
+                        </div>
+
+                        <!-- Vitrina de Trofeos Desbloqueados -->
+                        <div class="bg-stadium-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-fut text-lg uppercase tracking-wide text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                                    <span>Vitrina de Trofeos y Logros</span>
+                                </h3>
+                                <span id="trophies-count" class="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-semibold">0 Desbloqueados</span>
+                            </div>
+                            <div id="trophies-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <!-- Se rellena dinámicamente -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Fila 2: Plan de Entrenamiento / Coaching Técnico para Subir de Nivel -->
+                <section id="single-coaching-section" class="bg-gradient-to-br from-stadium-900 via-stadium-900 to-emerald-950/20 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                    <!-- Se renderiza dinámicamente mediante renderCoachingPlan() -->
+                </section>
+
+                <!-- Fila 3: Módulo de Auditoría y Calidad de Repositorios -->
+                <section class="bg-stadium-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800">
+                        <div>
+                            <div class="flex items-center gap-2.5 mb-1">
+                                <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">Auditoría Técnica</span>
+                                <span class="text-xs text-slate-400" id="audited-repos-count">Analizando repositorios públicos</span>
+                            </div>
+                            <h2 class="font-fut text-2xl sm:text-3xl font-bold uppercase text-white">
+                                Índice de Calidad de Repositorios
+                            </h2>
+                            <p class="text-sm text-slate-400 mt-1 max-w-2xl">
+                                Evaluación individual basada en tracción comunitaria (<strong class="text-slate-200">Estrellas</strong>), mantenimiento (<strong class="text-slate-200">Issues</strong>), colaboración (<strong class="text-slate-200">Pull Requests</strong>), frecuencia de <strong class="text-slate-200">Push</strong> y estándares de documentación (licencia, descripción y topics).
+                            </p>
+                        </div>
+
+                        <!-- Tarjeta Resumen del Índice Global de Calidad -->
+                        <div class="flex items-center gap-4 bg-slate-950/90 border border-slate-800 px-5 py-4 rounded-2xl self-start lg:self-center">
+                            <div id="global-quality-grade" class="w-14 h-14 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-fut text-3xl font-bold flex items-center justify-center">
+                                A
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Calidad Promedio</div>
+                                <div class="flex items-baseline gap-2">
+                                    <span id="global-quality-score" class="font-fut text-3xl font-bold text-white">82%</span>
+                                    <span id="global-quality-verdict" class="text-xs font-medium text-emerald-400">Muy Buena</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controles de Ordenamiento y Filtro -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 my-6">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs text-slate-400 mr-1">Ordenar por:</span>
+                            <button type="button" data-sort="quality" class="sort-repo-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition cursor-pointer">
+                                <i class="fa-solid fa-award mr-1"></i> Calidad Total
+                            </button>
+                            <button type="button" data-sort="stars" class="sort-repo-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                                <i class="fa-solid fa-star mr-1 text-amber-400"></i> Estrellas
+                            </button>
+                            <button type="button" data-sort="pushes" class="sort-repo-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                                <i class="fa-solid fa-code-commit mr-1 text-cyan-400"></i> Actividad Push
+                            </button>
+                            <button type="button" data-sort="issues" class="sort-repo-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                                <i class="fa-solid fa-circle-dot mr-1 text-purple-400"></i> Issues / PRs
+                            </button>
+                        </div>
+
+                        <label class="inline-flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+                            <input type="checkbox" id="hide-forks-checkbox" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Ocultar repositorios fork</span>
+                        </label>
+                    </div>
+
+                    <!-- Grid de Tarjetas de Calidad de Repositorios -->
+                    <div id="repos-quality-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Se rellena dinámicamente con cada repositorio auditado -->
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- VISTA 2: MODO DUELO 1v1 (VS)                                          -->
+        <!-- ===================================================================== -->
+        <div id="vs-mode-container" class="hidden space-y-10">
+            <!-- Encabezado y Buscador Dual -->
+            <section class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Cara a Cara en el Estadio</span>
+                </div>
+                <h1 class="font-fut text-3xl sm:text-5xl font-bold uppercase tracking-tight text-white mb-3">
+                    Duelo <span class="text-emerald-400">1 vs 1</span> de Desarrolladores
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base mb-6 max-w-2xl mx-auto">
+                    Enfrenta dos cuentas de GitHub en tiempo real. Comparamos media FUT, estrellas, pull requests, issues, pushes y la calidad promedio de sus repositorios para coronar al ganador.
+                </p>
+
+                <form id="vs-search-form" class="bg-stadium-900/90 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
+                        <!-- Jugador 1 -->
+                        <div class="md:col-span-5 text-left">
+                            <label for="vs-user1-input" class="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5">
+                                <i class="fa-solid fa-user-shield mr-1"></i> Jugador 1 (Local)
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-brands fa-github"></i>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    id="vs-user1-input" 
+                                    placeholder="Usuario 1 (ej. Younesfdj)" 
+                                    required
+                                    autocomplete="off"
+                                    class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Insignia VS Central -->
+                        <div class="md:col-span-1 flex items-center justify-center pt-2 md:pt-5">
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-slate-950 font-fut font-bold text-lg flex items-center justify-center shadow-lg shadow-amber-500/30 border-2 border-amber-200">
+                                VS
+                            </div>
+                        </div>
+
+                        <!-- Jugador 2 -->
+                        <div class="md:col-span-5 text-left">
+                            <label for="vs-user2-input" class="block text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1.5">
+                                <i class="fa-solid fa-user-ninja mr-1"></i> Jugador 2 (Visitante)
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-brands fa-github"></i>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    id="vs-user2-input" 
+                                    placeholder="Usuario 2 (ej. midudev)" 
+                                    required
+                                    autocomplete="off"
+                                    class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition text-sm"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
+                        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                            <span>Duelos sugeridos:</span>
+                            <button type="button" data-u1="Younesfdj" data-u2="midudev" class="quick-vs-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">@Younesfdj vs @midudev</button>
+                            <button type="button" data-u1="gaearon" data-u2="yyx990803" class="quick-vs-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">@gaearon vs @yyx990803</button>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            class="w-full sm:w-auto px-7 py-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            <i class="fa-solid fa-swords"></i>
+                            <span>Iniciar Duelo 1v1</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Estado de Carga VS -->
+            <div id="vs-loading-state" class="hidden py-16 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-stadium-800 border border-amber-500/40 mb-4 shadow-xl">
+                    <i class="fa-solid fa-bolt fa-beat text-3xl text-amber-400"></i>
+                </div>
+                <h3 class="font-fut text-xl uppercase tracking-wide text-white mb-1" id="vs-loading-title">Preparando el enfrentamiento...</h3>
+                <p class="text-sm text-slate-400">Evaluando repositorios, estrellas, pull requests, issues y calidad de ambos jugadores</p>
+            </div>
+
+            <!-- Estado de Error VS -->
+            <div id="vs-error-state" class="hidden max-w-xl mx-auto my-8 bg-rose-950/40 border border-rose-500/40 rounded-2xl p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-1">No se pudo iniciar el duelo</h3>
+                <p class="text-sm text-rose-200/80" id="vs-error-message">Verifica ambos usuarios e intenta nuevamente.</p>
+            </div>
+
+            <!-- Resultados del Duelo 1v1 -->
+            <div id="vs-results-dashboard" class="hidden space-y-10">
+
+                <!-- Arena de Cartas Lado a Lado -->
+                <div class="grid grid-cols-1 lg:grid-cols-11 gap-6 items-center">
+                    <!-- Carta Jugador 1 -->
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        <div id="vs-p1-winner-badge" class="hidden mb-3 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-fut font-bold text-sm uppercase tracking-wider shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-crown"></i>
+                            <span>Ganador del Duelo</span>
+                        </div>
+                        <div id="vs-p1-loser-spacer" class="h-9 mb-3 hidden lg:block"></div>
+                        <div class="fut-card-wrapper">
+                            <div id="vs-card-1" class="fut-card fut-card-sm tier-gold p-4 flex flex-col justify-between shadow-2xl">
+                                <!-- Rellenado dinámicamente -->
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-xs text-slate-400">Puntaje Compuesto:</span>
+                            <span id="vs-p1-composite" class="font-fut text-lg font-bold text-emerald-400 ml-1">0 pts</span>
+                        </div>
+                    </div>
+
+                    <!-- Marcador Central VS -->
+                    <div class="lg:col-span-1 flex flex-col items-center justify-center py-2">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 text-slate-950 font-fut font-bold text-2xl flex items-center justify-center shadow-2xl border-2 border-amber-200 rotate-3">
+                            VS
+                        </div>
+                        <span id="vs-score-diff" class="mt-2 text-[11px] font-bold text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-center whitespace-nowrap">
+                            +0 OVR
+                        </span>
+                    </div>
+
+                    <!-- Carta Jugador 2 -->
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        <div id="vs-p2-winner-badge" class="hidden mb-3 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-fut font-bold text-sm uppercase tracking-wider shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-crown"></i>
+                            <span>Ganador del Duelo</span>
+                        </div>
+                        <div id="vs-p2-loser-spacer" class="h-9 mb-3 hidden lg:block"></div>
+                        <div class="fut-card-wrapper">
+                            <div id="vs-card-2" class="fut-card fut-card-sm tier-special p-4 flex flex-col justify-between shadow-2xl">
+                                <!-- Rellenado dinámicamente -->
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-xs text-slate-400">Puntaje Compuesto:</span>
+                            <span id="vs-p2-composite" class="font-fut text-lg font-bold text-cyan-400 ml-1">0 pts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Veredicto del Analista Técnico -->
+                <div class="bg-gradient-to-r from-amber-500/10 via-stadium-900 to-emerald-500/10 border border-amber-500/30 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-gavel"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-fut text-xl uppercase tracking-wide text-white">Veredicto del Analista Técnico</h3>
+                                <span id="vs-verdict-tag" class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">Victoria Clara</span>
+                            </div>
+                            <p id="vs-verdict-text" class="text-sm text-slate-300 mt-1.5 leading-relaxed">
+                                Análisis comparativo detallado entre ambos desarrolladores...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla / Barras Comparativas Cara a Cara -->
+                <div class="bg-stadium-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-slate-800 mb-6">
+                        <div>
+                            <h3 class="font-fut text-2xl uppercase tracking-wide text-white flex items-center gap-2">
+                                <i class="fa-solid fa-scale-balanced text-cyan-400"></i>
+                                <span>Comparativa Estadística Cara a Cara</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Comparación directa de atributos FUT (0-99), métricas reales de GitHub y calidad de repositorios</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-bold">
+                            <span id="vs-legend-p1" class="text-emerald-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Jugador 1</span>
+                            <span id="vs-legend-p2" class="text-cyan-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Jugador 2</span>
+                        </div>
+                    </div>
+
+                    <div id="vs-comparison-bars" class="space-y-4">
+                        <!-- Se rellena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Planes de Entrenamiento (Coaching Técnico) para Ambos Jugadores -->
+                <div class="space-y-6">
+                    <div class="text-center max-w-2xl mx-auto">
+                        <h3 class="font-fut text-2xl sm:text-3xl uppercase text-white">Plan de Entrenamiento Personalizado</h3>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1">Recomendaciones específicas para que cada desarrollador suba su media OVR y optimice sus repositorios más débiles</p>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <div id="vs-coaching-p1" class="bg-stadium-900/90 border border-emerald-500/30 rounded-2xl p-6 shadow-xl"></div>
+                        <div id="vs-coaching-p2" class="bg-stadium-900/90 border border-cyan-500/30 rounded-2xl p-6 shadow-xl"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 mt-16 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>GitFut ES • Inspirado en GitFut • Impulsado en tiempo real por la API REST oficial de GitHub.</p>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * Lógica Principal de GitFut ES
+         * Conecta con la API pública de GitHub, calcula métricas estilo FUT (0-99)
+         * y audita la calidad de los repositorios públicos.
+         */
+
+        // Estado global de la aplicación
+        const state = {
+            activeMode: 'single', // 'single' | 'vs'
+            userData: null,
+            reposData: [],
+            eventsData: [],
+            prTotalCount: 0,
+            issueTotalCount: 0,
+            auditedRepos: [],
+            currentSort: 'quality',
+            hideForks: false,
+            futStats: null,
+            vsData: {
+                player1: null,
+                player2: null
+            }
+        };
+
+        // Elementos del DOM
+        const elements = {
+            modeSingleBtn: document.getElementById('mode-single-btn'),
+            modeVsBtn: document.getElementById('mode-vs-btn'),
+            singleModeContainer: document.getElementById('single-mode-container'),
+            vsModeContainer: document.getElementById('vs-mode-container'),
+            searchForm: document.getElementById('search-form'),
+            usernameInput: document.getElementById('username-input'),
+            analyzeBtn: document.getElementById('analyze-btn'),
+            vsSearchForm: document.getElementById('vs-search-form'),
+            vsUser1Input: document.getElementById('vs-user1-input'),
+            vsUser2Input: document.getElementById('vs-user2-input'),
+            vsLoadingState: document.getElementById('vs-loading-state'),
+            vsLoadingTitle: document.getElementById('vs-loading-title'),
+            vsErrorState: document.getElementById('vs-error-state'),
+            vsErrorMessage: document.getElementById('vs-error-message'),
+            vsResultsDashboard: document.getElementById('vs-results-dashboard'),
+            toggleTokenBtn: document.getElementById('toggle-token-btn'),
+            tokenPanel: document.getElementById('token-panel'),
+            tokenInput: document.getElementById('github-token-input'),
+            saveTokenBtn: document.getElementById('save-token-btn'),
+            clearTokenBtn: document.getElementById('clear-token-btn'),
+            rateLimitText: document.getElementById('rate-limit-text'),
+            loadingState: document.getElementById('loading-state'),
+            loadingTitle: document.getElementById('loading-title'),
+            loadingSubtitle: document.getElementById('loading-subtitle'),
+            errorState: document.getElementById('error-state'),
+            errorTitle: document.getElementById('error-title'),
+            errorMessage: document.getElementById('error-message'),
+            resultsDashboard: document.getElementById('results-dashboard'),
+            futCard: document.getElementById('fut-card'),
+            hideForksCheckbox: document.getElementById('hide-forks-checkbox')
+        };
+
+        // Inicialización al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar token guardado si existe
+            const savedToken = localStorage.getItem('gitfut_github_token');
+            if (savedToken) {
+                elements.tokenInput.value = savedToken;
+                elements.rateLimitText.textContent = 'API Autenticada';
+            }
+
+            setupEventListeners();
+            setupCard3DEffect(elements.futCard);
+            setupCard3DEffect(document.getElementById('vs-card-1'));
+            setupCard3DEffect(document.getElementById('vs-card-2'));
+
+            // Analizar usuario por defecto al iniciar para mostrar demostración inmediata
+            analyzeGitHubProfile('Younesfdj');
+        });
+
+        // Cambiar entre Modo Individual y Modo Duelo 1v1 (VS)
+        function switchAppMode(mode) {
+            state.activeMode = mode;
+            if (mode === 'single') {
+                elements.singleModeContainer.classList.remove('hidden');
+                elements.vsModeContainer.classList.add('hidden');
+
+                elements.modeSingleBtn.classList.add('bg-emerald-500', 'text-slate-950', 'shadow');
+                elements.modeSingleBtn.classList.remove('text-slate-300', 'hover:text-white');
+
+                elements.modeVsBtn.classList.remove('bg-amber-400', 'text-slate-950', 'shadow');
+                elements.modeVsBtn.classList.add('text-slate-300', 'hover:text-white');
+            } else {
+                elements.singleModeContainer.classList.add('hidden');
+                elements.vsModeContainer.classList.remove('hidden');
+
+                elements.modeVsBtn.classList.add('bg-amber-400', 'text-slate-950', 'shadow');
+                elements.modeVsBtn.classList.remove('text-slate-300', 'hover:text-white');
+
+                elements.modeSingleBtn.classList.remove('bg-emerald-500', 'text-slate-950', 'shadow');
+                elements.modeSingleBtn.classList.add('text-slate-300', 'hover:text-white');
+            }
+        }
+
+        // Configuración de eventos de interfaz
+        function setupEventListeners() {
+            // Pestañas de modo
+            elements.modeSingleBtn.addEventListener('click', () => switchAppMode('single'));
+            elements.modeVsBtn.addEventListener('click', () => switchAppMode('vs'));
+
+            // Envío del formulario de búsqueda individual
+            elements.searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = elements.usernameInput.value.trim();
+                if (username) {
+                    analyzeGitHubProfile(username);
+                }
+            });
+
+            // Botón para retar al usuario actual en el modo VS
+            document.getElementById('challenge-user-btn').addEventListener('click', () => {
+                const currentUser = state.userData?.login || 'Younesfdj';
+                elements.vsUser1Input.value = currentUser;
+                switchAppMode('vs');
+                elements.vsUser2Input.focus();
+                showToast(`@${currentUser} listo como Jugador 1. Elige su rival.`, 'info');
+            });
+
+            // Envío del formulario de Duelo 1v1 (VS)
+            elements.vsSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const u1 = elements.vsUser1Input.value.trim();
+                const u2 = elements.vsUser2Input.value.trim();
+                if (u1 && u2) {
+                    runVSDuel(u1, u2);
+                }
+            });
+
+            // Botones de duelos sugeridos rápidos
+            document.querySelectorAll('.quick-vs-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const u1 = btn.getAttribute('data-u1');
+                    const u2 = btn.getAttribute('data-u2');
+                    elements.vsUser1Input.value = u1;
+                    elements.vsUser2Input.value = u2;
+                    runVSDuel(u1, u2);
+                });
+            });
+
+            // Botones de prueba rápida individual
+            document.querySelectorAll('.quick-user-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const user = btn.getAttribute('data-user');
+                    elements.usernameInput.value = user;
+                    analyzeGitHubProfile(user);
+                });
+            });
+
+            // Mostrar / ocultar panel de token API
+            elements.toggleTokenBtn.addEventListener('click', () => {
+                elements.tokenPanel.classList.toggle('hidden');
+            });
+
+            // Guardar token personal de GitHub
+            elements.saveTokenBtn.addEventListener('click', () => {
+                const token = elements.tokenInput.value.trim();
+                if (token) {
+                    localStorage.setItem('gitfut_github_token', token);
+                    elements.rateLimitText.textContent = 'API Autenticada';
+                    elements.tokenPanel.classList.add('hidden');
+                    showToast('Token guardado correctamente. Límite ampliado a 5,000 req/h.', 'success');
+                } else {
+                    showToast('Ingresa un token válido antes de guardar.', 'error');
+                }
+            });
+
+            // Eliminar token personal de GitHub
+            elements.clearTokenBtn.addEventListener('click', () => {
+                localStorage.removeItem('gitfut_github_token');
+                elements.tokenInput.value = '';
+                elements.rateLimitText.textContent = 'API Pública';
+                showToast('Token eliminado.', 'info');
+            });
+
+            // Ordenamiento de repositorios auditados
+            document.querySelectorAll('.sort-repo-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.sort-repo-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-emerald-500', 'text-slate-950');
+                        b.classList.add('bg-slate-800', 'text-slate-300');
+                    });
+                    btn.classList.add('active', 'bg-emerald-500', 'text-slate-950');
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                    state.currentSort = btn.getAttribute('data-sort');
+                    renderAuditedRepositories();
+                });
+            });
+
+            // Filtro para ocultar forks
+            elements.hideForksCheckbox.addEventListener('change', (e) => {
+                state.hideForks = e.target.checked;
+                renderAuditedRepositories();
+            });
+
+            // Descargar carta como imagen PNG y copiar resumen
+            document.getElementById('download-card-btn').addEventListener('click', downloadCardAsPNG);
+            document.getElementById('copy-summary-btn').addEventListener('click', copyCardSummary);
+        }
+
+        // Efecto 3D interactivo y brillo holográfico al mover el cursor sobre cualquier carta
+        function setupCard3DEffect(card) {
+            if (!card) return;
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = ((y - centerY) / centerY) * -12;
+                const rotateY = ((x - centerX) / centerX) * 12;
+
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        }
+
+        // Helper para realizar peticiones autenticadas (si hay token) a la API de GitHub
+        async function fetchGitHubAPI(url) {
+            const token = localStorage.getItem('gitfut_github_token');
+            const headers = {
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(url, { headers });
+
+            // Actualizar contador de límite restante en la barra superior
+            const remaining = response.headers.get('X-RateLimit-Remaining');
+            const limit = response.headers.get('X-RateLimit-Limit');
+            if (remaining !== null && limit !== null) {
+                elements.rateLimitText.textContent = `${remaining}/${limit} req`;
+            }
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('El usuario de GitHub no existe o no es público.');
+                }
+                if (response.status === 403 || response.status === 429) {
+                    throw new Error('Límite de consultas de la API de GitHub alcanzado. Agrega un Token API arriba o espera unos minutos.');
+                }
+                if (response.status === 401) {
+                    throw new Error('El Token Personal de GitHub configurado es inválido o ha expirado.');
+                }
+                throw new Error(`Error al consultar GitHub (Código ${response.status}).`);
+            }
+
+            return response.json();
+        }
+
+        // Función reutilizable para obtener y procesar todos los datos de un usuario de GitHub
+        async function fetchAndEvaluateUser(username) {
+            username = username.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+
+            const [userData, reposData, eventsData] = await Promise.all([
+                fetchGitHubAPI(`https://api.github.com/users/${username}`),
+                fetchGitHubAPI(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`),
+                fetchGitHubAPI(`https://api.github.com/users/${username}/events/public?per_page=100`).catch(() => [])
+            ]);
+
+            let prTotal = 0;
+            let issueTotal = 0;
+            try {
+                const [prSearch, issueSearch] = await Promise.all([
+                    fetchGitHubAPI(`https://api.github.com/search/issues?q=author:${username}+type:pr&per_page=1`),
+                    fetchGitHubAPI(`https://api.github.com/search/issues?q=author:${username}+type:issue&per_page=1`)
+                ]);
+                prTotal = prSearch.total_count || 0;
+                issueTotal = issueSearch.total_count || 0;
+            } catch (searchErr) {
+                prTotal = eventsData.filter(e => e.type === 'PullRequestEvent').length * 3;
+                issueTotal = eventsData.filter(e => e.type === 'IssuesEvent').length * 3;
+            }
+
+            const cleanRepos = Array.isArray(reposData) ? reposData : [];
+            const cleanEvents = Array.isArray(eventsData) ? eventsData : [];
+
+            const evaluation = calculateFUTMetrics({
+                userData,
+                reposData: cleanRepos,
+                eventsData: cleanEvents,
+                prTotalCount: prTotal,
+                issueTotalCount: issueTotal
+            });
+
+            const auditedRepos = auditAllRepositories(cleanRepos, cleanEvents);
+            const avgQuality = auditedRepos.length > 0
+                ? Math.round(auditedRepos.reduce((acc, r) => acc + r.qualityScore, 0) / auditedRepos.length)
+                : 0;
+
+            return {
+                userData,
+                reposData: cleanRepos,
+                eventsData: cleanEvents,
+                prTotalCount: prTotal,
+                issueTotalCount: issueTotal,
+                evaluation,
+                auditedRepos,
+                avgQuality
+            };
+        }
+
+        // Flujo principal de consulta y análisis (Modo Individual)
+        async function analyzeGitHubProfile(username) {
+            username = username.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+            elements.usernameInput.value = username;
+
+            elements.errorState.classList.add('hidden');
+            elements.resultsDashboard.classList.add('hidden');
+            elements.loadingState.classList.remove('hidden');
+            elements.loadingTitle.textContent = `Ojeando a @${username} en GitHub...`;
+
+            try {
+                const profileBundle = await fetchAndEvaluateUser(username);
+
+                // Guardar en estado global
+                state.userData = profileBundle.userData;
+                state.reposData = profileBundle.reposData;
+                state.eventsData = profileBundle.eventsData;
+                state.prTotalCount = profileBundle.prTotalCount;
+                state.issueTotalCount = profileBundle.issueTotalCount;
+                state.futStats = profileBundle.evaluation;
+                state.auditedRepos = profileBundle.auditedRepos;
+
+                // Renderizar resultados en la interfaz
+                renderFUTCard(profileBundle.evaluation);
+                renderProfileDetails(profileBundle.evaluation);
+                renderTrophies(profileBundle.evaluation);
+                renderCoachingPlan(profileBundle, 'single-coaching-section');
+                renderAuditedRepositories();
+
+                elements.loadingState.classList.add('hidden');
+                elements.resultsDashboard.classList.remove('hidden');
+
+            } catch (error) {
+                elements.loadingState.classList.add('hidden');
+                elements.errorState.classList.remove('hidden');
+                elements.errorTitle.textContent = 'No se pudo completar el análisis';
+                elements.errorMessage.textContent = error.message;
+            }
+        }
+
+        // Flujo de Duelo 1v1 (Modo VS)
+        async function runVSDuel(user1, user2) {
+            user1 = user1.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+            user2 = user2.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+
+            if (user1.toLowerCase() === user2.toLowerCase()) {
+                showToast('Ingresa dos usuarios distintos para realizar el duelo.', 'error');
+                return;
+            }
+
+            elements.vsErrorState.classList.add('hidden');
+            elements.vsResultsDashboard.classList.add('hidden');
+            elements.vsLoadingState.classList.remove('hidden');
+            elements.vsLoadingTitle.textContent = `Enfrentando a @${user1} vs @${user2}...`;
+
+            try {
+                const [p1Bundle, p2Bundle] = await Promise.all([
+                    fetchAndEvaluateUser(user1),
+                    fetchAndEvaluateUser(user2)
+                ]);
+
+                state.vsData.player1 = p1Bundle;
+                state.vsData.player2 = p2Bundle;
+
+                renderVSDuelResults(p1Bundle, p2Bundle);
+
+                elements.vsLoadingState.classList.add('hidden');
+                elements.vsResultsDashboard.classList.remove('hidden');
+            } catch (error) {
+                elements.vsLoadingState.classList.add('hidden');
+                elements.vsErrorState.classList.remove('hidden');
+                elements.vsErrorMessage.textContent = error.message;
+            }
+        }
+
+        /**
+         * Algoritmo de Cálculo de Estadísticas FUT (0 - 99) con Escalado Logarítmico
+         * Evita inflación por spam y premia el impacto real, consistencia y calidad.
+         */
+        function calculateFUTMetrics(data) {
+            const { userData, reposData, eventsData, prTotalCount, issueTotalCount } = data;
+
+            // Función auxiliar de escalado logarítmico suave entre baseMin y 99
+            const logScale = (value, maxRef, baseMin = 42) => {
+                if (value <= 0) return baseMin;
+                const normalized = Math.log10(value + 1) / Math.log10(maxRef + 1);
+                const score = Math.round(baseMin + normalized * (99 - baseMin));
+                return Math.min(99, Math.max(baseMin, score));
+            };
+
+            // 1. Extracción de métricas brutas
+            const totalStars = reposData.reduce((sum, r) => sum + (r.stargazers_count || 0), 0);
+            const totalForks = reposData.reduce((sum, r) => sum + (r.forks_count || 0), 0);
+            const openIssuesInRepos = reposData.reduce((sum, r) => sum + (r.open_issues_count || 0), 0);
+            const ownRepos = reposData.filter(r => !r.fork);
+            const totalReposCount = userData.public_repos || reposData.length;
+            const followers = userData.followers || 0;
+
+            // Análisis de eventos recientes (Pushes y commits)
+            const pushEvents = eventsData.filter(e => e.type === 'PushEvent');
+            const recentCommits = pushEvents.reduce((sum, e) => sum + (e.payload?.commits?.length || 1), 0);
+            const recentPREvents = eventsData.filter(e => e.type === 'PullRequestEvent').length;
+            const recentIssueEvents = eventsData.filter(e => e.type === 'IssuesEvent').length;
+
+            // Repositorios actualizados en los últimos 90 días
+            const ninetyDaysAgo = Date.now() - (90 * 24 * 60 * 60 * 1000);
+            const recentlyActiveRepos = reposData.filter(r => new Date(r.pushed_at).getTime() > ninetyDaysAgo).length;
+
+            // Diversidad de lenguajes
+            const languageCounts = {};
+            ownRepos.forEach(r => {
+                if (r.language) {
+                    languageCounts[r.language] = (languageCounts[r.language] || 0) + 1;
+                }
+            });
+            const uniqueLanguages = Object.keys(languageCounts);
+            const topLanguage = uniqueLanguages.sort((a, b) => languageCounts[b] - languageCounts[a])[0] || 'Código';
+
+            // Buenas prácticas en repositorios propios (descripción, licencia, topics)
+            const documentedRepos = ownRepos.filter(r => r.description && r.description.trim().length > 5).length;
+            const licensedRepos = ownRepos.filter(r => r.license !== null).length;
+            const docRatio = ownRepos.length > 0 ? (documentedRepos + licensedRepos) / (ownRepos.length * 2) : 0;
+
+            // Antigüedad de la cuenta en años
+            const createdDate = new Date(userData.created_at);
+            const yearsActive = Math.max(0.2, (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+
+            // 2. Cálculo de los 6 Atributos FUT (0-99)
+            // RIT (Ritmo): Pushes recientes, commits y repos activos últimamente
+            const paceRaw = (pushEvents.length * 3) + recentCommits + (recentlyActiveRepos * 4);
+            const rit = logScale(paceRaw, 180, 45);
+
+            // TIR (Tiro): Estrellas totales + impacto viral (followers)
+            const shootingRaw = totalStars + (followers * 0.25);
+            const tir = logScale(shootingRaw, 8000, 40);
+
+            // PAS (Pase): Pull Requests realizados + Forks generados en sus proyectos
+            const effectivePRs = Math.max(prTotalCount, recentPREvents);
+            const passingRaw = (effectivePRs * 2.5) + totalForks;
+            const pas = logScale(passingRaw, 2500, 42);
+
+            // REG (Regate): Versatilidad de lenguajes y repositorios originales
+            const dribblingRaw = (uniqueLanguages.length * 14) + (ownRepos.length * 1.5);
+            const reg = logScale(dribblingRaw, 220, 45);
+
+            // DEF (Defensa): Issues reportados/gestionados + Calidad de documentación y licencias
+            const effectiveIssues = Math.max(issueTotalCount, recentIssueEvents + openIssuesInRepos);
+            const defenseRaw = (effectiveIssues * 2) + (docRatio * 80);
+            const def = logScale(defenseRaw, 1500, 44);
+
+            // FÍS (Físico): Antigüedad de trayectoria + volumen total de repositorios
+            const physicalRaw = (yearsActive * 15) + (totalReposCount * 1.8) + (pushEvents.length * 1.5);
+            const fis = logScale(physicalRaw, 350, 46);
+
+            // 3. Determinación de Posición y Arquetipo en Español
+            const statsMap = { rit, tir, pas, reg, def, fis };
+            const positionInfo = determinePlayerPosition(statsMap, topLanguage);
+
+            // 4. Cálculo de Media General (OVR) ponderada según la posición
+            let ovr = Math.round(
+                (rit * 0.17) +
+                (tir * 0.21) +
+                (pas * 0.18) +
+                (reg * 0.15) +
+                (def * 0.14) +
+                (fis * 0.15)
+            );
+            // Bono leve de élite por estrellas masivas o trayectorias legendarias
+            if (totalStars >= 10000) ovr = Math.min(99, ovr + 3);
+            else if (totalStars >= 1000) ovr = Math.min(99, ovr + 2);
+
+            // 5. Determinación de Rareza de la Carta (Bronce <65, Plata 65-74, Oro 75-84, TOTY 85-91, Ícono 92+)
+            let rarity = { id: 'bronze', label: 'Bronce', badgeClass: 'tier-bronze', pillBg: 'bg-amber-900/40 text-amber-300 border-amber-700/50' };
+            if (ovr >= 92) {
+                rarity = { id: 'icon', label: 'Ícono Legendario', badgeClass: 'tier-icon', pillBg: 'bg-yellow-500/20 text-yellow-200 border-yellow-400/50' };
+            } else if (ovr >= 85) {
+                rarity = { id: 'special', label: 'Especial TOTY', badgeClass: 'tier-special', pillBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40' };
+            } else if (ovr >= 75) {
+                rarity = { id: 'gold', label: 'Carta Oro', badgeClass: 'tier-gold', pillBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40' };
+            } else if (ovr >= 65) {
+                rarity = { id: 'silver', label: 'Carta Plata', badgeClass: 'tier-silver', pillBg: 'bg-slate-400/20 text-slate-200 border-slate-400/40' };
+            }
+
+            return {
+                ovr,
+                stats: statsMap,
+                position: positionInfo.pos,
+                archetype: positionInfo.archetype,
+                rarity,
+                topLanguage,
+                uniqueLanguages,
+                raw: {
+                    totalStars,
+                    totalForks,
+                    effectivePRs,
+                    effectiveIssues,
+                    openIssuesInRepos,
+                    pushCount: pushEvents.length,
+                    recentCommits,
+                    yearsActive: yearsActive.toFixed(1),
+                    totalReposCount,
+                    ownReposCount: ownRepos.length,
+                    followers
+                }
+            };
+        }
+
+        // Asigna posición táctica de fútbol y arquetipo en español según las estadísticas dominantes
+        function determinePlayerPosition(stats, topLanguage) {
+            const { rit, tir, pas, reg, def, fis } = stats;
+
+            if (tir >= pas && tir >= def && tir >= 78) {
+                return { pos: 'DC', archetype: 'Goleador de Repositorios' };
+            }
+            if (pas >= tir && pas >= def && pas >= 76) {
+                return { pos: 'MCO', archetype: 'Arquitecto de Pull Requests' };
+            }
+            if (rit >= tir && rit >= pas && rit >= 80) {
+                return { pos: 'ED', archetype: 'Velocista de Commits' };
+            }
+            if (def >= tir && def >= pas && def >= 76) {
+                return { pos: 'DFC', archetype: 'Guardián de Issues y Calidad' };
+            }
+            if (reg >= tir && reg >= pas && reg >= 76) {
+                return { pos: 'MI', archetype: `Especialista Políglota (${topLanguage})` };
+            }
+            if (fis >= 82 && def >= 74) {
+                return { pos: 'MCD', archetype: 'Motor Incombustible del Código' };
+            }
+            return { pos: 'MC', archetype: 'Centrocampista Full-Stack' };
+        }
+
+        /**
+         * Módulo de Auditoría de Calidad por Repositorio
+         * Evalúa cada repositorio según: Estrellas, Issues, Pull Requests/Forks, Frecuencia de Push y Buenas Prácticas.
+         */
+        function auditAllRepositories(repos, events) {
+            // Mapear actividad reciente de Push y PRs por nombre de repositorio desde eventos públicos
+            const repoEventActivity = {};
+            events.forEach(ev => {
+                const repoFullName = ev.repo?.name;
+                if (!repoFullName) return;
+                if (!repoEventActivity[repoFullName]) {
+                    repoEventActivity[repoFullName] = { pushes: 0, commits: 0, prs: 0, issues: 0 };
+                }
+                if (ev.type === 'PushEvent') {
+                    repoEventActivity[repoFullName].pushes += 1;
+                    repoEventActivity[repoFullName].commits += (ev.payload?.commits?.length || 1);
+                } else if (ev.type === 'PullRequestEvent') {
+                    repoEventActivity[repoFullName].prs += 1;
+                } else if (ev.type === 'IssuesEvent') {
+                    repoEventActivity[repoFullName].issues += 1;
+                }
+            });
+
+            const now = Date.now();
+
+            return repos.map(repo => {
+                const act = repoEventActivity[repo.full_name] || { pushes: 0, commits: 0, prs: 0, issues: 0 };
+
+                // Días desde el último push
+                const pushedDate = new Date(repo.pushed_at);
+                const daysSincePush = Math.max(0, Math.floor((now - pushedDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+                // 1. Puntuación de Estrellas (hasta 25 pts)
+                const stars = repo.stargazers_count || 0;
+                const starScore = stars === 0 ? 4 : Math.min(25, Math.round((Math.log10(stars + 1) / Math.log10(500)) * 25));
+
+                // 2. Puntuación de Actividad Push y Frescura (hasta 25 pts)
+                let pushScore = 0;
+                if (daysSincePush <= 14) pushScore = 20;
+                else if (daysSincePush <= 45) pushScore = 16;
+                else if (daysSincePush <= 120) pushScore = 11;
+                else if (daysSincePush <= 365) pushScore = 6;
+                else pushScore = 2;
+                // Bono por pushes detectados en el stream reciente
+                pushScore = Math.min(25, pushScore + Math.min(5, act.pushes * 2));
+
+                // 3. Puntuación de Pull Requests y Colaboración (hasta 20 pts)
+                const forks = repo.forks_count || 0;
+                const estimatedPRs = act.prs + Math.round(forks * 0.4);
+                const prScore = Math.min(20, Math.round((Math.log10(estimatedPRs + 1) / Math.log10(80)) * 20) + (forks > 0 ? 4 : 0));
+
+                // 4. Puntuación de Gestión de Issues (hasta 15 pts)
+                const openIssues = repo.open_issues_count || 0;
+                let issueScore = 6; // Base neutral
+                if (openIssues > 0 && openIssues <= 30) issueScore = 13; // Comunidad activa reportando
+                else if (openIssues > 30 && openIssues <= 150) issueScore = 15; // Alta tracción
+                else if (openIssues > 150) issueScore = 10; // Muchos pendientes sin cerrar
+                if (act.issues > 0) issueScore = Math.min(15, issueScore + 2);
+
+                // 5. Puntuación de Buenas Prácticas y Documentación (hasta 15 pts)
+                let practicesScore = 0;
+                const checks = [];
+                if (repo.description && repo.description.trim().length >= 10) {
+                    practicesScore += 5;
+                    checks.push({ ok: true, text: 'Descripción clara' });
+                } else {
+                    checks.push({ ok: false, text: 'Falta descripción' });
+                }
+
+                if (repo.license) {
+                    practicesScore += 5;
+                    checks.push({ ok: true, text: `Licencia ${repo.license.spdx_id || 'OS'}` });
+                } else {
+                    checks.push({ ok: false, text: 'Sin licencia' });
+                }
+
+                if ((repo.topics && repo.topics.length > 0) || repo.homepage) {
+                    practicesScore += 5;
+                    checks.push({ ok: true, text: 'Topics / Web' });
+                } else {
+                    checks.push({ ok: false, text: 'Sin etiquetas' });
+                }
+
+                // Penalización leve si es un fork sin estrellas propias
+                let qualityScore = starScore + pushScore + prScore + issueScore + practicesScore;
+                if (repo.fork && stars === 0) {
+                    qualityScore = Math.max(15, Math.round(qualityScore * 0.72));
+                }
+                qualityScore = Math.min(100, Math.max(10, qualityScore));
+
+                // Calificación por letra (S, A, B, C, D)
+                let grade = 'D';
+                let gradeColor = 'text-rose-400 bg-rose-500/15 border-rose-500/30';
+                let barColor = 'bg-rose-500';
+                if (qualityScore >= 85) {
+                    grade = 'S';
+                    gradeColor = 'text-amber-300 bg-amber-500/20 border-amber-400/40';
+                    barColor = 'bg-gradient-to-r from-amber-400 to-yellow-300';
+                } else if (qualityScore >= 72) {
+                    grade = 'A';
+                    gradeColor = 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30';
+                    barColor = 'bg-emerald-400';
+                } else if (qualityScore >= 55) {
+                    grade = 'B';
+                    gradeColor = 'text-cyan-400 bg-cyan-500/15 border-cyan-500/30';
+                    barColor = 'bg-cyan-400';
+                } else if (qualityScore >= 40) {
+                    grade = 'C';
+                    gradeColor = 'text-slate-300 bg-slate-500/15 border-slate-500/30';
+                    barColor = 'bg-slate-400';
+                }
+
+                // Diagnóstico automático en español
+                let diagnosis = '';
+                if (qualityScore >= 85) {
+                    diagnosis = 'Repositorio ejemplar: alta tracción comunitaria, mantenimiento constante y documentación sólida.';
+                } else if (qualityScore >= 70) {
+                    diagnosis = 'Muy buena salud técnica: actividad frecuente y estructura bien definida.';
+                } else if (daysSincePush > 180) {
+                    diagnosis = 'Inactivo recientemente: lleva más de 6 meses sin nuevos pushes.';
+                } else if (!repo.description || !repo.license) {
+                    diagnosis = 'Mejorable: agregar una descripción detallada y licencia elevaría su calidad.';
+                } else {
+                    diagnosis = 'Proyecto funcional con margen para crecer en estrellas y colaboración.';
+                }
+
+                return {
+                    id: repo.id,
+                    name: repo.name,
+                    fullName: repo.full_name,
+                    htmlUrl: repo.html_url,
+                    description: repo.description || 'Sin descripción proporcionada en GitHub.',
+                    language: repo.language || 'Varios',
+                    isFork: repo.fork,
+                    stars,
+                    forks,
+                    openIssues,
+                    recentPushes: act.pushes,
+                    recentCommits: act.commits,
+                    estimatedPRs,
+                    daysSincePush,
+                    qualityScore,
+                    grade,
+                    gradeColor,
+                    barColor,
+                    checks,
+                    diagnosis
+                };
+            });
+        }
+
+        // Renderiza la carta visual estilo FIFA Ultimate Team
+        function renderFUTCard(evaluation) {
+            const { userData } = state;
+            const card = elements.futCard;
+
+            // Aplicar clase de rareza
+            card.className = `fut-card ${evaluation.rarity.badgeClass} p-5 flex flex-col justify-between shadow-2xl`;
+
+            document.getElementById('card-ovr').textContent = evaluation.ovr;
+            document.getElementById('card-pos').textContent = evaluation.position;
+            document.getElementById('card-tier-label').textContent = evaluation.rarity.label.split(' ')[0];
+            document.getElementById('card-avatar').src = userData.avatar_url;
+            document.getElementById('card-name').textContent = (userData.name || userData.login).toUpperCase();
+            document.getElementById('card-archetype').textContent = evaluation.archetype;
+            document.getElementById('card-username').textContent = `@${userData.login}`;
+
+            // Estadísticas
+            document.getElementById('stat-rit').textContent = evaluation.stats.rit;
+            document.getElementById('stat-tir').textContent = evaluation.stats.tir;
+            document.getElementById('stat-pas').textContent = evaluation.stats.pas;
+            document.getElementById('stat-reg').textContent = evaluation.stats.reg;
+            document.getElementById('stat-def').textContent = evaluation.stats.def;
+            document.getElementById('stat-fis').textContent = evaluation.stats.fis;
+
+            // Icono de lenguaje principal
+            const langIconMap = {
+                'JavaScript': 'fa-brands fa-js',
+                'TypeScript': 'fa-solid fa-code',
+                'Python': 'fa-brands fa-python',
+                'Java': 'fa-brands fa-java',
+                'HTML': 'fa-brands fa-html5',
+                'CSS': 'fa-brands fa-css3-alt',
+                'PHP': 'fa-brands fa-php',
+                'Rust': 'fa-brands fa-rust',
+                'Go': 'fa-brands fa-golang',
+                'C++': 'fa-solid fa-microchip',
+                'C': 'fa-solid fa-terminal',
+                'Swift': 'fa-brands fa-swift'
+            };
+            const iconClass = langIconMap[evaluation.topLanguage] || 'fa-solid fa-code';
+            const langBadge = document.getElementById('card-lang-badge');
+            langBadge.innerHTML = `<i class="${iconClass}"></i>`;
+            langBadge.title = `Lenguaje estrella: ${evaluation.topLanguage}`;
+        }
+
+        // Renderiza los detalles del perfil, contadores y barras de atributos
+        function renderProfileDetails(evaluation) {
+            const { userData } = state;
+            const { raw, stats, rarity } = evaluation;
+
+            document.getElementById('profile-fullname').textContent = userData.name || userData.login;
+            const badgeRarity = document.getElementById('profile-badge-rarity');
+            badgeRarity.textContent = rarity.label;
+            badgeRarity.className = `px-2.5 py-0.5 text-xs font-bold rounded-md border ${rarity.pillBg}`;
+
+            document.getElementById('profile-bio').textContent = userData.bio || 'Desarrollador en GitHub sin biografía pública.';
+            document.getElementById('profile-location').innerHTML = `<i class="fa-solid fa-location-dot text-slate-500 mr-1"></i> ${userData.location || 'Remoto / Global'}`;
+
+            const joinYear = new Date(userData.created_at).getFullYear();
+            document.getElementById('profile-joined').innerHTML = `<i class="fa-regular fa-calendar text-slate-500 mr-1"></i> Desde ${joinYear} (${raw.yearsActive} años)`;
+            document.getElementById('profile-followers').innerHTML = `<i class="fa-solid fa-users text-slate-500 mr-1"></i> ${raw.followers.toLocaleString('es-ES')} seguidores`;
+            document.getElementById('profile-github-link').href = userData.html_url;
+
+            // Contadores principales
+            document.getElementById('metric-stars').textContent = raw.totalStars.toLocaleString('es-ES');
+            document.getElementById('metric-prs').textContent = raw.effectivePRs.toLocaleString('es-ES');
+            document.getElementById('metric-issues').textContent = raw.effectiveIssues.toLocaleString('es-ES');
+            document.getElementById('metric-pushes').textContent = `${raw.pushCount} (${raw.recentCommits} commits)`;
+
+            // Desglose visual de los 6 atributos
+            const breakdownData = [
+                { code: 'RIT', name: 'Ritmo (Frecuencia Push)', val: stats.rit, desc: `${raw.pushCount} eventos push recientes` },
+                { code: 'TIR', name: 'Tiro (Estrellas e Impacto)', val: stats.tir, desc: `${raw.totalStars.toLocaleString('es-ES')} estrellas totales` },
+                { code: 'PAS', name: 'Pase (Pull Requests y Forks)', val: stats.pas, desc: `${raw.effectivePRs} PRs • ${raw.totalForks} forks` },
+                { code: 'REG', name: 'Regate (Versatilidad Técnica)', val: stats.reg, desc: `${evaluation.uniqueLanguages.length} lenguajes (${evaluation.topLanguage})` },
+                { code: 'DEF', name: 'Defensa (Issues y Calidad)', val: stats.def, desc: `${raw.effectiveIssues} issues gestionados` },
+                { code: 'FÍS', name: 'Físico (Trayectoria y Volumen)', val: stats.fis, desc: `${raw.totalReposCount} repos • ${raw.yearsActive} años` }
+            ];
+
+            const breakdownContainer = document.getElementById('attributes-breakdown');
+            breakdownContainer.innerHTML = breakdownData.map(item => {
+                const colorClass = item.val >= 85 ? 'bg-emerald-400' : item.val >= 70 ? 'bg-cyan-400' : 'bg-amber-400';
+                return `
+                    <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <div>
+                                <span class="font-fut font-bold text-sm text-white mr-1.5">${item.code}</span>
+                                <span class="text-xs text-slate-300 font-medium">${item.name}</span>
+                            </div>
+                            <span class="font-fut font-bold text-base text-white">${item.val}</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-1.5">
+                            <div class="h-full ${colorClass} rounded-full transition-all duration-500" style="width: ${item.val}%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400">${item.desc}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Renderiza la vitrina de trofeos desbloqueados
+        function renderTrophies(evaluation) {
+            const { raw, ovr, uniqueLanguages } = evaluation;
+
+            const allTrophies = [
+                {
+                    title: 'Balón de Oro Open Source',
+                    desc: 'Media general FUT de 88 o superior',
+                    icon: 'fa-solid fa-award',
+                    unlocked: ovr >= 88,
+                    color: 'text-amber-400 bg-amber-500/15 border-amber-500/30'
+                },
+                {
+                    title: 'Bota de Oro de Estrellas',
+                    desc: 'Más de 500 estrellas acumuladas',
+                    icon: 'fa-solid fa-star',
+                    unlocked: raw.totalStars >= 500,
+                    color: 'text-yellow-300 bg-yellow-500/15 border-yellow-500/30'
+                },
+                {
+                    title: 'Maestro del Pull Request',
+                    desc: 'Más de 50 Pull Requests realizados',
+                    icon: 'fa-solid fa-code-pull-request',
+                    unlocked: raw.effectivePRs >= 50,
+                    color: 'text-purple-400 bg-purple-500/15 border-purple-500/30'
+                },
+                {
+                    title: 'Cazador de Bugs e Issues',
+                    desc: 'Más de 30 Issues reportados o abiertos',
+                    icon: 'fa-solid fa-bug-slash',
+                    unlocked: raw.effectiveIssues >= 30,
+                    color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30'
+                },
+                {
+                    title: 'Motor Incombustible',
+                    desc: 'Alta actividad reciente de pushes',
+                    icon: 'fa-solid fa-bolt',
+                    unlocked: raw.pushCount >= 10,
+                    color: 'text-cyan-400 bg-cyan-500/15 border-cyan-500/30'
+                },
+                {
+                    title: 'Políglota del Código',
+                    desc: 'Domina 5 o más lenguajes distintos',
+                    icon: 'fa-solid fa-layer-group',
+                    unlocked: uniqueLanguages.length >= 5,
+                    color: 'text-pink-400 bg-pink-500/15 border-pink-500/30'
+                },
+                {
+                    title: 'Veterano del Estadio',
+                    desc: 'Más de 5 años de trayectoria en GitHub',
+                    icon: 'fa-solid fa-shield-halved',
+                    unlocked: parseFloat(raw.yearsActive) >= 5,
+                    color: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/30'
+                },
+                {
+                    title: 'Fábrica de Proyectos',
+                    desc: 'Más de 25 repositorios públicos',
+                    icon: 'fa-solid fa-cubes',
+                    unlocked: raw.totalReposCount >= 25,
+                    color: 'text-teal-400 bg-teal-500/15 border-teal-500/30'
+                }
+            ];
+
+            const unlockedCount = allTrophies.filter(t => t.unlocked).length;
+            document.getElementById('trophies-count').textContent = `${unlockedCount} / ${allTrophies.length} Desbloqueados`;
+
+            const grid = document.getElementById('trophies-grid');
+            grid.innerHTML = allTrophies.map(t => {
+                if (t.unlocked) {
+                    return `
+                        <div class="border ${t.color} rounded-xl p-3 flex flex-col items-center text-center transition hover:scale-[1.03]">
+                            <i class="${t.icon} text-xl mb-1.5"></i>
+                            <span class="text-xs font-bold text-white leading-tight">${t.title}</span>
+                            <span class="text-[10px] text-slate-300/80 mt-1 leading-tight">${t.desc}</span>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="border border-slate-800/80 bg-slate-950/40 rounded-xl p-3 flex flex-col items-center text-center opacity-45 grayscale">
+                            <i class="fa-solid fa-lock text-slate-500 text-lg mb-1.5"></i>
+                            <span class="text-xs font-semibold text-slate-400 leading-tight">${t.title}</span>
+                            <span class="text-[10px] text-slate-500 mt-1 leading-tight">${t.desc}</span>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // Renderiza la tabla/tarjetas de auditoría de calidad de repositorios
+        function renderAuditedRepositories() {
+            let reposToRender = [...state.auditedRepos];
+
+            if (state.hideForks) {
+                reposToRender = reposToRender.filter(r => !r.isFork);
+            }
+
+            // Calcular puntuación promedio global de los repositorios visibles
+            const avgQuality = reposToRender.length > 0
+                ? Math.round(reposToRender.reduce((acc, r) => acc + r.qualityScore, 0) / reposToRender.length)
+                : 0;
+
+            let globalGrade = 'D';
+            let globalVerdict = 'Necesita Mejoras';
+            let gradeStyle = 'bg-rose-500/20 border-rose-500/40 text-rose-400';
+
+            if (avgQuality >= 82) {
+                globalGrade = 'S';
+                globalVerdict = 'Calidad Élite';
+                gradeStyle = 'bg-amber-500/20 border-amber-400/40 text-amber-300';
+            } else if (avgQuality >= 68) {
+                globalGrade = 'A';
+                globalVerdict = 'Excelente Salud';
+                gradeStyle = 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400';
+            } else if (avgQuality >= 52) {
+                globalGrade = 'B';
+                globalVerdict = 'Buena Calidad';
+                gradeStyle = 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400';
+            } else if (avgQuality >= 38) {
+                globalGrade = 'C';
+                globalVerdict = 'Calidad Estándar';
+                gradeStyle = 'bg-slate-500/20 border-slate-500/40 text-slate-300';
+            }
+
+            // Actualizar insignia de calidad en la carta FUT también
+            const cardQualityPill = document.getElementById('card-quality-pill');
+            if (cardQualityPill) {
+                cardQualityPill.textContent = `CALIDAD ${globalGrade}`;
+            }
+
+            const gradeBox = document.getElementById('global-quality-grade');
+            gradeBox.textContent = globalGrade;
+            gradeBox.className = `w-14 h-14 rounded-xl border font-fut text-3xl font-bold flex items-center justify-center ${gradeStyle}`;
+            document.getElementById('global-quality-score').textContent = `${avgQuality}%`;
+            document.getElementById('global-quality-verdict').textContent = globalVerdict;
+            document.getElementById('audited-repos-count').textContent = `${reposToRender.length} repositorios auditados`;
+
+            // Ordenamiento seleccionado
+            reposToRender.sort((a, b) => {
+                if (state.currentSort === 'stars') return b.stars - a.stars;
+                if (state.currentSort === 'pushes') return a.daysSincePush - b.daysSincePush;
+                if (state.currentSort === 'issues') return (b.openIssues + b.estimatedPRs) - (a.openIssues + a.estimatedPRs);
+                return b.qualityScore - a.qualityScore;
+            });
+
+            const grid = document.getElementById('repos-quality-grid');
+
+            if (reposToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center bg-slate-950/50 border border-slate-800 rounded-2xl">
+                        <p class="text-slate-400 text-sm">No se encontraron repositorios con los filtros actuales.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = reposToRender.slice(0, 24).map(repo => {
+                const pushText = repo.daysSincePush === 0
+                    ? 'Hoy'
+                    : repo.daysSincePush === 1
+                        ? 'Hace 1 día'
+                        : `Hace ${repo.daysSincePush} días`;
+
+                return `
+                    <article class="bg-slate-950/80 border border-slate-800/90 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between transition shadow-lg">
+                        <div>
+                            <!-- Cabecera del Repo -->
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <a href="${repo.htmlUrl}" target="_blank" rel="noopener noreferrer" class="font-bold text-base text-white hover:text-emerald-400 transition truncate">
+                                            ${repo.name}
+                                        </a>
+                                        ${repo.isFork ? '<span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Fork</span>' : ''}
+                                        <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800/90 text-cyan-300 font-medium">${repo.language}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-1 line-clamp-2">${repo.description}</p>
+                                </div>
+
+                                <!-- Insignia de Calidad del Repo -->
+                                <div class="flex flex-col items-center shrink-0">
+                                    <div class="w-11 h-11 rounded-xl border ${repo.gradeColor} font-fut text-xl font-bold flex items-center justify-center">
+                                        ${repo.grade}
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-400 mt-1">${repo.qualityScore}/100</span>
+                                </div>
+                            </div>
+
+                            <!-- Barra de progreso de calidad -->
+                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden my-3">
+                                <div class="h-full ${repo.barColor} rounded-full" style="width: ${repo.qualityScore}%"></div>
+                            </div>
+
+                            <!-- 4 Métricas Clave del Repositorio -->
+                            <div class="grid grid-cols-4 gap-2 text-center bg-stadium-900/90 border border-slate-800/80 rounded-xl p-2.5 my-3">
+                                <div>
+                                    <div class="text-[10px] text-slate-400">Estrellas</div>
+                                    <div class="text-xs font-bold text-amber-400 mt-0.5"><i class="fa-solid fa-star mr-1"></i>${repo.stars}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-slate-400">Issues</div>
+                                    <div class="text-xs font-bold text-emerald-400 mt-0.5"><i class="fa-solid fa-circle-dot mr-1"></i>${repo.openIssues}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-slate-400">PRs / Forks</div>
+                                    <div class="text-xs font-bold text-purple-400 mt-0.5"><i class="fa-solid fa-code-pull-request mr-1"></i>${repo.estimatedPRs}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-slate-400">Último Push</div>
+                                    <div class="text-xs font-bold text-cyan-400 mt-0.5 truncate" title="${pushText}">${pushText}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Checklist de Buenas Prácticas y Diagnóstico -->
+                        <div class="pt-2 border-t border-slate-800/80">
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                ${repo.checks.map(c => `
+                                    <span class="text-[10px] px-2 py-0.5 rounded-md border ${c.ok ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25' : 'bg-slate-800/70 text-slate-400 border-slate-700/80'}">
+                                        <i class="fa-solid ${c.ok ? 'fa-check text-emerald-400' : 'fa-xmark text-slate-500'} mr-1"></i>${c.text}
+                                    </span>
+                                `).join('')}
+                            </div>
+                            <p class="text-[11px] text-slate-300/90 flex items-start gap-1.5">
+                                <i class="fa-solid fa-stethoscope text-emerald-400 mt-0.5"></i>
+                                <span>${repo.diagnosis}</span>
+                            </p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Genera el HTML interno reutilizable de una Carta FUT (para Modo VS)
+         */
+        function buildFUTCardHTML(bundle, qualityGrade) {
+            const { userData, evaluation } = bundle;
+            const langIconMap = {
+                'JavaScript': 'fa-brands fa-js',
+                'TypeScript': 'fa-solid fa-code',
+                'Python': 'fa-brands fa-python',
+                'Java': 'fa-brands fa-java',
+                'HTML': 'fa-brands fa-html5',
+                'CSS': 'fa-brands fa-css3-alt',
+                'PHP': 'fa-brands fa-php',
+                'Rust': 'fa-brands fa-rust',
+                'Go': 'fa-brands fa-golang',
+                'C++': 'fa-solid fa-microchip',
+                'C': 'fa-solid fa-terminal',
+                'Swift': 'fa-brands fa-swift'
+            };
+            const iconClass = langIconMap[evaluation.topLanguage] || 'fa-solid fa-code';
+
+            return `
+                <div class="fut-card-pattern"></div>
+                <div class="fut-card-glare"></div>
+
+                <div class="relative z-10 flex items-start justify-between pt-1">
+                    <div class="flex flex-col items-center w-16 text-center">
+                        <span class="font-fut text-4xl font-bold leading-none tracking-tighter ovr-highlight">${evaluation.ovr}</span>
+                        <span class="font-fut text-lg font-bold uppercase tracking-wider mt-0.5">${evaluation.position}</span>
+                        <div class="w-7 h-[1.5px] card-divider my-1"></div>
+                        <div class="w-7 h-7 rounded-full bg-black/15 flex items-center justify-center text-xs font-bold" title="Lenguaje: ${evaluation.topLanguage}">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <span class="text-[8px] font-extrabold uppercase tracking-widest mt-1 opacity-80">${evaluation.rarity.label.split(' ')[0]}</span>
+                    </div>
+
+                    <div class="relative mr-2 mt-1">
+                        <div class="w-28 h-28 rounded-full p-1 bg-gradient-to-b from-white/50 to-black/20 shadow-lg">
+                            <img src="${userData.avatar_url}" crossorigin="anonymous" alt="${userData.login}" class="w-full h-full object-cover rounded-full bg-slate-900">
+                        </div>
+                        <div class="absolute -bottom-2 right-0 px-2 py-0.5 rounded-full bg-slate-950/90 text-emerald-400 border border-emerald-400/50 text-[9px] font-bold shadow-md">
+                            CALIDAD ${qualityGrade}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative z-10 text-center mt-1.5">
+                    <h2 class="font-fut text-xl font-bold uppercase tracking-wide truncate px-2">${(userData.name || userData.login).toUpperCase()}</h2>
+                    <p class="text-[10px] font-semibold uppercase tracking-widest opacity-85 truncate px-2">${evaluation.archetype}</p>
+                    <div class="w-4/5 h-[1.5px] card-divider mx-auto my-1.5"></div>
+                </div>
+
+                <div class="relative z-10 grid grid-cols-2 gap-x-3 px-3 font-fut text-base">
+                    <div class="space-y-0.5 border-r border-current/20 pr-2.5">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.rit}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">RIT</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.tir}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">TIR</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.pas}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">PAS</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-0.5 pl-1">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.reg}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">REG</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.def}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">DEF</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg">${evaluation.stats.fis}</span>
+                            <span class="stat-label text-xs font-semibold tracking-wider">FÍS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative z-10 text-center pt-1 flex items-center justify-center gap-1.5 opacity-75 text-[9px] font-bold tracking-widest uppercase">
+                    <i class="fa-brands fa-github"></i>
+                    <span>@${userData.login}</span>
+                </div>
+            `;
+        }
+
+        function getQualityLetter(avgScore) {
+            if (avgScore >= 82) return 'S';
+            if (avgScore >= 68) return 'A';
+            if (avgScore >= 52) return 'B';
+            if (avgScore >= 38) return 'C';
+            return 'D';
+        }
+
+        /**
+         * Renderiza el Duelo 1v1 (VS) completo: Cartas, Ganador, Veredicto, Barras y Coaching
+         */
+        function renderVSDuelResults(p1, p2) {
+            const p1QualityLetter = getQualityLetter(p1.avgQuality);
+            const p2QualityLetter = getQualityLetter(p2.avgQuality);
+
+            // Puntaje compuesto = 75% OVR + 25% Calidad promedio de repositorios
+            const p1Composite = Math.round((p1.evaluation.ovr * 0.75) + (p1.avgQuality * 0.25));
+            const p2Composite = Math.round((p2.evaluation.ovr * 0.75) + (p2.avgQuality * 0.25));
+
+            const card1El = document.getElementById('vs-card-1');
+            const card2El = document.getElementById('vs-card-2');
+
+            card1El.className = `fut-card fut-card-sm ${p1.evaluation.rarity.badgeClass} p-4 flex flex-col justify-between shadow-2xl ${p1Composite > p2Composite ? 'winner-highlight' : ''}`;
+            card2El.className = `fut-card fut-card-sm ${p2.evaluation.rarity.badgeClass} p-4 flex flex-col justify-between shadow-2xl ${p2Composite > p1Composite ? 'winner-highlight' : ''}`;
+
+            card1El.innerHTML = buildFUTCardHTML(p1, p1QualityLetter);
+            card2El.innerHTML = buildFUTCardHTML(p2, p2QualityLetter);
+
+            document.getElementById('vs-p1-composite').textContent = `${p1Composite} pts (OVR ${p1.evaluation.ovr} + Cal. ${p1.avgQuality}%)`;
+            document.getElementById('vs-p2-composite').textContent = `${p2Composite} pts (OVR ${p2.evaluation.ovr} + Cal. ${p2.avgQuality}%)`;
+
+            // Distintivo de ganador
+            const p1Badge = document.getElementById('vs-p1-winner-badge');
+            const p2Badge = document.getElementById('vs-p2-winner-badge');
+            const p1Spacer = document.getElementById('vs-p1-loser-spacer');
+            const p2Spacer = document.getElementById('vs-p2-loser-spacer');
+
+            p1Badge.classList.add('hidden');
+            p2Badge.classList.add('hidden');
+            p1Spacer.classList.remove('hidden');
+            p2Spacer.classList.remove('hidden');
+
+            if (p1Composite > p2Composite) {
+                p1Badge.classList.remove('hidden');
+                p1Spacer.classList.add('hidden');
+            } else if (p2Composite > p1Composite) {
+                p2Badge.classList.remove('hidden');
+                p2Spacer.classList.add('hidden');
+            }
+
+            const ovrDiff = Math.abs(p1.evaluation.ovr - p2.evaluation.ovr);
+            document.getElementById('vs-score-diff').textContent = ovrDiff === 0 ? 'EMPATE OVR' : `DIF: ${ovrDiff} OVR`;
+
+            // Leyendas
+            document.getElementById('vs-legend-p1').innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> @${p1.userData.login}`;
+            document.getElementById('vs-legend-p2').innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> @${p2.userData.login}`;
+
+            // Generar Veredicto del Analista Técnico
+            generateVSVerdict(p1, p2, p1Composite, p2Composite);
+
+            // Renderizar barras comparativas cara a cara
+            const metricsToCompare = [
+                { label: 'Media General (OVR)', v1: p1.evaluation.ovr, v2: p2.evaluation.ovr, max: 99, unit: '' },
+                { label: 'Calidad Promedio Repositorios', v1: p1.avgQuality, v2: p2.avgQuality, max: 100, unit: '%' },
+                { label: 'RIT (Ritmo / Pushes)', v1: p1.evaluation.stats.rit, v2: p2.evaluation.stats.rit, max: 99, unit: '' },
+                { label: 'TIR (Tiro / Estrellas)', v1: p1.evaluation.stats.tir, v2: p2.evaluation.stats.tir, max: 99, unit: '' },
+                { label: 'PAS (Pase / Pull Requests)', v1: p1.evaluation.stats.pas, v2: p2.evaluation.stats.pas, max: 99, unit: '' },
+                { label: 'REG (Regate / Lenguajes)', v1: p1.evaluation.stats.reg, v2: p2.evaluation.stats.reg, max: 99, unit: '' },
+                { label: 'DEF (Defensa / Issues y Docs)', v1: p1.evaluation.stats.def, v2: p2.evaluation.stats.def, max: 99, unit: '' },
+                { label: 'FÍS (Físico / Trayectoria)', v1: p1.evaluation.stats.fis, v2: p2.evaluation.stats.fis, max: 99, unit: '' },
+                { label: 'Estrellas Totales', v1: p1.evaluation.raw.totalStars, v2: p2.evaluation.raw.totalStars, isRaw: true, unit: ' ⭐' },
+                { label: 'Pull Requests Realizados', v1: p1.evaluation.raw.effectivePRs, v2: p2.evaluation.raw.effectivePRs, isRaw: true, unit: ' PRs' },
+                { label: 'Issues Reportados/Abiertos', v1: p1.evaluation.raw.effectiveIssues, v2: p2.evaluation.raw.effectiveIssues, isRaw: true, unit: '' },
+                { label: 'Pushes Recientes', v1: p1.evaluation.raw.pushCount, v2: p2.evaluation.raw.pushCount, isRaw: true, unit: '' }
+            ];
+
+            const barsContainer = document.getElementById('vs-comparison-bars');
+            barsContainer.innerHTML = metricsToCompare.map(m => {
+                const maxVal = m.isRaw ? Math.max(m.v1, m.v2, 1) : m.max;
+                const pct1 = Math.min(100, Math.round((m.v1 / maxVal) * 100));
+                const pct2 = Math.min(100, Math.round((m.v2 / maxVal) * 100));
+
+                const p1Wins = m.v1 > m.v2;
+                const p2Wins = m.v2 > m.v1;
+
+                return `
+                    <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5">
+                        <div class="flex items-center justify-between text-xs mb-2">
+                            <span class="font-fut text-base font-bold ${p1Wins ? 'text-emerald-400' : 'text-slate-300'}">
+                                ${p1Wins ? '<i class="fa-solid fa-crown text-amber-400 mr-1 text-xs"></i>' : ''}${m.v1.toLocaleString('es-ES')}${m.unit}
+                            </span>
+                            <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">${m.label}</span>
+                            <span class="font-fut text-base font-bold ${p2Wins ? 'text-cyan-400' : 'text-slate-300'}">
+                                ${m.v2.toLocaleString('es-ES')}${m.unit}${p2Wins ? '<i class="fa-solid fa-crown text-amber-400 ml-1 text-xs"></i>' : ''}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 items-center">
+                            <!-- Barra Jugador 1 (crece de derecha a izquierda) -->
+                            <div class="w-full h-2.5 bg-slate-800 rounded-l-full overflow-hidden flex justify-end">
+                                <div class="h-full ${p1Wins ? 'bg-emerald-400' : 'bg-emerald-500/45'} rounded-l-full transition-all duration-500" style="width: ${pct1}%"></div>
+                            </div>
+                            <!-- Barra Jugador 2 (crece de izquierda a derecha) -->
+                            <div class="w-full h-2.5 bg-slate-800 rounded-r-full overflow-hidden flex justify-start">
+                                <div class="h-full ${p2Wins ? 'bg-cyan-400' : 'bg-cyan-500/45'} rounded-r-full transition-all duration-500" style="width: ${pct2}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Renderizar planes de entrenamiento para ambos jugadores
+            renderCoachingPlan(p1, 'vs-coaching-p1', true);
+            renderCoachingPlan(p2, 'vs-coaching-p2', true);
+        }
+
+        function generateVSVerdict(p1, p2, p1Comp, p2Comp) {
+            const tagEl = document.getElementById('vs-verdict-tag');
+            const textEl = document.getElementById('vs-verdict-text');
+
+            if (p1Comp === p2Comp) {
+                tagEl.textContent = 'Empate Técnico';
+                textEl.textContent = `¡Duelo sumamente reñido! Tanto @${p1.userData.login} como @${p2.userData.login} empatan con ${p1Comp} puntos compuestos. Mientras @${p1.userData.login} destaca en ${p1.evaluation.archetype.toLowerCase()}, @${p2.userData.login} equilibra la balanza con un índice de calidad de repositorios del ${p2.avgQuality}%.`;
+                return;
+            }
+
+            const winner = p1Comp > p2Comp ? p1 : p2;
+            const loser = p1Comp > p2Comp ? p2 : p1;
+            const diff = Math.abs(p1Comp - p2Comp);
+
+            tagEl.textContent = diff >= 10 ? 'Victoria Contundente' : 'Victoria Ajustada';
+
+            const advantages = [];
+            if (winner.evaluation.raw.totalStars > loser.evaluation.raw.totalStars) {
+                advantages.push(`mayor impacto comunitario (${winner.evaluation.raw.totalStars.toLocaleString('es-ES')} frente a ${loser.evaluation.raw.totalStars.toLocaleString('es-ES')} estrellas)`);
+            }
+            if (winner.evaluation.raw.effectivePRs > loser.evaluation.raw.effectivePRs) {
+                advantages.push(`superior volumen de Pull Requests (${winner.evaluation.raw.effectivePRs} vs ${loser.evaluation.raw.effectivePRs})`);
+            }
+            if (winner.avgQuality > loser.avgQuality) {
+                advantages.push(`mejor calidad estructural en sus repositorios (${winner.avgQuality}% vs ${loser.avgQuality}%)`);
+            }
+            if (winner.evaluation.raw.pushCount > loser.evaluation.raw.pushCount) {
+                advantages.push(`mayor ritmo de pushes recientes`);
+            }
+
+            const reasonText = advantages.length > 0
+                ? `impulsado por su ${advantages.slice(0, 2).join(' y ')}`
+                : `gracias a un balance más sólido en sus seis atributos técnicos`;
+
+            textEl.innerHTML = `<strong class="text-amber-300">@${winner.userData.login}</strong> (${winner.evaluation.ovr} OVR) se lleva el triunfo ante <strong class="text-slate-200">@${loser.userData.login}</strong> (${loser.evaluation.ovr} OVR) con una ventaja de <strong>${diff} puntos compuestos</strong>, ${reasonText}.`;
+        }
+
+        /**
+         * Módulo de Coaching Técnico / Indicaciones Personalizadas para Subir de Nivel
+         * Analiza: 1) Progreso hacia siguiente rareza, 2) Atributo más débil, 3) Top 3 repositorios a optimizar.
+         */
+        function renderCoachingPlan(bundle, containerId, compact = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const { userData, evaluation, auditedRepos } = bundle;
+            const { ovr, stats, raw } = evaluation;
+
+            // 1. Calcular meta hacia la siguiente rareza de carta
+            const tiers = [
+                { min: 65, name: 'Carta Plata' },
+                { min: 75, name: 'Carta Oro' },
+                { min: 85, name: 'Especial TOTY' },
+                { min: 92, name: 'Ícono Legendario' },
+                { min: 99, name: 'Leyenda Máxima (99 OVR)' }
+            ];
+            const nextTier = tiers.find(t => t.min > ovr) || { min: 99, name: 'Nivel Máximo Alcanzado' };
+            const pointsNeeded = Math.max(0, nextTier.min - ovr);
+            const progressPct = ovr >= 99 ? 100 : Math.min(98, Math.round((ovr / nextTier.min) * 100));
+
+            // 2. Identificar el atributo más débil y generar consejos accionables
+            const statEntries = [
+                {
+                    key: 'rit',
+                    code: 'RIT (Ritmo)',
+                    val: stats.rit,
+                    tip: `Actualmente registras ${raw.pushCount} eventos push recientes. Realiza commits pequeños y constantes al menos 3-4 veces por semana en tus proyectos activos para disparar tu velocidad.`
+                },
+                {
+                    key: 'tir',
+                    code: 'TIR (Tiro / Impacto)',
+                    val: stats.tir,
+                    tip: `Cuentas con ${raw.totalStars} estrellas. Añade capturas de pantalla, GIFs demostrativos, enlaces de despliegue en vivo y un README atractivo en tus mejores repositorios para atraer estrellas.`
+                },
+                {
+                    key: 'pas',
+                    code: 'PAS (Pase / Colaboración)',
+                    val: stats.pas,
+                    tip: `Tienes ${raw.effectivePRs} Pull Requests contabilizados. Contribuye a proyectos Open Source resolviendo issues etiquetados como "good first issue" o trabaja con ramas y PRs en tus propios repos.`
+                },
+                {
+                    key: 'reg',
+                    code: 'REG (Regate / Versatilidad)',
+                    val: stats.reg,
+                    tip: `Dominas ${evaluation.uniqueLanguages.length} lenguaje(s). Experimenta creando micro-proyectos o herramientas CLI en un stack complementario (ej. TypeScript, Python, Go o Rust) para ampliar tu rango técnico.`
+                },
+                {
+                    key: 'def',
+                    code: 'DEF (Defensa / Mantenimiento)',
+                    val: stats.def,
+                    tip: `Registra y documenta mejor tus incidencias (${raw.effectiveIssues} issues). Añade archivos LICENSE, descripciones claras y plantillas de issues para fortalecer la salud de tus proyectos.`
+                },
+                {
+                    key: 'fis',
+                    code: 'FÍS (Físico / Constancia)',
+                    val: stats.fis,
+                    tip: `Mantén activos tus repositorios clave a lo largo del tiempo y publica proyectos originales bien estructurados (actualmente ${raw.ownReposCount} repositorios propios).`
+                }
+            ];
+
+            statEntries.sort((a, b) => a.val - b.val);
+            const weakest = statEntries[0];
+            const secondWeakest = statEntries[1];
+
+            // 3. Top 3 repositorios propios con menor puntuación para optimizar
+            const reposToImprove = auditedRepos
+                .filter(r => !r.isFork)
+                .sort((a, b) => a.qualityScore - b.qualityScore)
+                .slice(0, 3);
+
+            const reposImproveHTML = reposToImprove.length > 0
+                ? reposToImprove.map(repo => {
+                    const missingItems = [];
+                    if (repo.description.startsWith('Sin descripción')) missingItems.push('Añadir descripción clara');
+                    if (repo.checks.some(c => !c.ok && c.text.includes('licencia'))) missingItems.push('Agregar licencia (MIT/Apache)');
+                    if (repo.checks.some(c => !c.ok && c.text.includes('etiquetas'))) missingItems.push('Configurar topics/etiquetas');
+                    if (repo.daysSincePush > 90) missingItems.push(`Actualizar código (inactivo hace ${repo.daysSincePush}d)`);
+                    if (repo.stars === 0) missingItems.push('Mejorar README para ganar estrellas');
+                    if (missingItems.length === 0) missingItems.push('Fomentar PRs e Issues de la comunidad');
+
+                    return `
+                        <div class="bg-slate-950/75 border border-slate-800/90 rounded-xl p-3.5 flex flex-col justify-between gap-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <a href="${repo.htmlUrl}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-white hover:text-emerald-400 truncate">
+                                    <i class="fa-solid fa-folder-open text-amber-400 mr-1.5"></i>${repo.name}
+                                </a>
+                                <span class="text-[11px] font-fut font-bold px-2 py-0.5 rounded border ${repo.gradeColor}">
+                                    Grado ${repo.grade} (${repo.qualityScore}%)
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${missingItems.slice(0, 3).map(m => `
+                                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/25 px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid fa-wrench mr-1"></i>${m}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : `<p class="text-xs text-slate-400">No se detectaron repositorios propios pendientes de optimización urgente.</p>`;
+
+            container.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/90 mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-emerald-400 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Coaching Técnico • @${userData.login}</span>
+                            <h3 class="font-fut text-xl sm:text-2xl font-bold uppercase text-white">Indicaciones para Subir de Nivel</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800 px-3.5 py-2 rounded-xl text-right">
+                        <div class="text-[10px] text-slate-400 uppercase">Siguiente Rango</div>
+                        <div class="text-xs font-bold text-amber-300">
+                            ${pointsNeeded > 0 ? `+${pointsNeeded} OVR para ${nextTier.name}` : nextTier.name}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Progreso hacia la Siguiente Rareza -->
+                <div class="mb-6 bg-slate-950/60 border border-slate-800/80 rounded-xl p-4">
+                    <div class="flex justify-between items-center text-xs mb-1.5">
+                        <span class="text-slate-300 font-medium">Nivel Actual: <strong class="text-white">${ovr} OVR (${evaluation.rarity.label})</strong></span>
+                        <span class="text-emerald-400 font-bold">Meta: ${nextTier.min} OVR</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-500" style="width: ${progressPct}%"></div>
+                    </div>
+                </div>
+
+                <!-- Diagnóstico de Atributos a Entrenar -->
+                <div class="grid grid-cols-1 ${compact ? '' : 'md:grid-cols-2'} gap-4 mb-6">
+                    <div class="bg-rose-950/20 border border-rose-500/30 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-rose-300 uppercase tracking-wider">
+                                <i class="fa-solid fa-arrow-trend-up mr-1"></i> Prioridad #1: Subir ${weakest.code}
+                            </span>
+                            <span class="font-fut text-lg font-bold text-rose-400">${weakest.val} / 99</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${weakest.tip}</p>
+                    </div>
+
+                    <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                                <i class="fa-solid fa-bullseye mr-1"></i> Prioridad #2: Reforzar ${secondWeakest.code}
+                            </span>
+                            <span class="font-fut text-lg font-bold text-amber-400">${secondWeakest.val} / 99</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${secondWeakest.tip}</p>
+                    </div>
+                </div>
+
+                <!-- Top 3 Repositorios a Optimizar -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-400"></i>
+                        <span>Repositorios Prioritarios para Mejorar su Calidad</span>
+                    </h4>
+                    <div class="grid grid-cols-1 ${compact ? '' : 'md:grid-cols-3'} gap-3">
+                        ${reposImproveHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Exportar la carta como imagen PNG usando html2canvas
+        async function downloadCardAsPNG() {
+            const cardElement = elements.futCard;
+            const prevTransform = cardElement.style.transform;
+            cardElement.style.transform = 'none';
+
+            try {
+                showToast('Generando imagen PNG de tu carta...', 'info');
+                const canvas = await html2canvas(cardElement, {
+                    backgroundColor: null,
+                    scale: 2,
+                    useCORS: true
+                });
+                const link = document.createElement('a');
+                link.download = `GitFut_${state.userData?.login || 'jugador'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('¡Carta descargada con éxito!', 'success');
+            } catch (err) {
+                showToast('No se pudo exportar la imagen por restricciones del navegador.', 'error');
+            } finally {
+                cardElement.style.transform = prevTransform;
+            }
+        }
+
+        // Copiar resumen en español al portapapeles
+        function copyCardSummary() {
+            if (!state.userData || !state.futStats) return;
+            const { userData, futStats } = state;
+            const { ovr, position, archetype, stats, raw } = futStats;
+
+            const summary = `⚽ Carta GitFut ES - @${userData.login}
+🏆 Media General: ${ovr} OVR (${position} - ${archetype})
+📊 RIT: ${stats.rit} | TIR: ${stats.tir} | PAS: ${stats.pas} | REG: ${stats.reg} | DEF: ${stats.def} | FÍS: ${stats.fis}
+⭐ Estrellas: ${raw.totalStars} | 🔀 PRs: ${raw.effectivePRs} | 🐛 Issues: ${raw.effectiveIssues} | 🚀 Pushes recientes: ${raw.pushCount}`;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = summary;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast('Ficha copiada al portapapeles para compartir.', 'success');
+        }
+
+        // Sistema de notificaciones Toast (sin usar alert)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const styles = {
+                success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+                error: 'bg-rose-950/95 border-rose-500/50 text-rose-200',
+                info: 'bg-slate-900/95 border-slate-700 text-slate-200'
+            };
+
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                info: 'fa-circle-info text-cyan-400'
+            };
+
+            toast.className = `pointer-events-auto border ${styles[type]} px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5 backdrop-blur-md transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type]} text-sm"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
