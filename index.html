@@ -162,6 +162,85 @@
             animation: winnerGlow 2.5s infinite ease-in-out;
         }
 
+        /* ========================================================= */
+        /* Animaciones Caricaturescas del Estadio 5v5 (Modo VS)      */
+        /* ========================================================= */
+        @keyframes cartoonBob {
+            0%, 100% { transform: translateY(0px) scaleX(1) scaleY(1); }
+            50% { transform: translateY(-4px) scaleX(0.95) scaleY(1.06); }
+        }
+        @keyframes cartoonJump {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            40% { transform: translateY(-16px) scale(1.08, 0.94); }
+            65% { transform: translateY(-4px) scale(0.96, 1.05); }
+        }
+        @keyframes cartoonDizzy {
+            0%, 100% { transform: rotate(-4deg) translateY(0px); }
+            50% { transform: rotate(4deg) translateY(2px); }
+        }
+        @keyframes crowdWave {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+        @keyframes goalNetShake {
+            0%, 100% { transform: translateX(0px) scaleX(1); }
+            25% { transform: translateX(-5px) scaleX(1.12); }
+            50% { transform: translateX(4px) scaleX(0.95); }
+            75% { transform: translateX(-2px) scaleX(1.05); }
+        }
+        @keyframes comicBannerPop {
+            0% { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+            50% { opacity: 1; transform: scale(1.12) rotate(2deg); }
+            75% { transform: scale(0.96) rotate(-1deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes dustPuff {
+            0% { opacity: 0.85; transform: scale(0.4); }
+            100% { opacity: 0; transform: scale(1.9) translateY(-8px); }
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(260px) rotate(540deg) scale(0.7); }
+        }
+
+        .cartoon-player-running .player-body {
+            animation: cartoonBob 0.36s infinite ease-in-out;
+            transform-box: fill-box;
+            transform-origin: center bottom;
+        }
+        .cartoon-player-celebrating .player-body {
+            animation: cartoonJump 0.55s infinite ease-in-out;
+            transform-box: fill-box;
+            transform-origin: center bottom;
+        }
+        .cartoon-player-dizzy .player-body {
+            animation: cartoonDizzy 0.7s infinite ease-in-out;
+            transform-box: fill-box;
+            transform-origin: center bottom;
+        }
+        .crowd-bob-1 { animation: crowdWave 1.1s infinite ease-in-out; }
+        .crowd-bob-2 { animation: crowdWave 1.3s 0.3s infinite ease-in-out; }
+        .goal-shake {
+            animation: goalNetShake 0.45s ease-in-out 2;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        .comic-pop {
+            animation: comicBannerPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .dust-particle {
+            animation: dustPuff 0.55s ease-out forwards;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            animation: confettiFall 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
         /* Scrollbar estilizado */
         ::-webkit-scrollbar {
             width: 8px;
@@ -682,6 +761,212 @@
             <!-- Resultados del Duelo 1v1 -->
             <div id="vs-results-dashboard" class="hidden space-y-10">
 
+                <!-- Arena Animada del Partido Caricaturesco 5v5 -->
+                <section id="vs-cartoon-arena" class="bg-stadium-900/95 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <!-- Marcador Estilo Transmisión TV -->
+                    <div class="bg-gradient-to-r from-emerald-950/80 via-slate-950 to-cyan-950/80 border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                        <!-- Equipo 1 -->
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <img id="match-p1-avatar" src="" alt="Equipo 1" class="w-9 h-9 rounded-full border-2 border-emerald-400 object-cover bg-slate-900 shrink-0">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span id="match-p1-name" class="font-fut text-sm sm:text-base font-bold text-emerald-300 truncate max-w-[110px] sm:max-w-[160px]">@jugador1</span>
+                                    <span id="match-p1-ovr" class="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded">00 OVR</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-wider hidden sm:block">Local · Esmeralda FC</p>
+                            </div>
+                        </div>
+
+                        <!-- Marcador Central y Reloj -->
+                        <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/90 border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-inner mx-auto sm:mx-0">
+                            <span id="match-score-p1" class="font-fut text-2xl sm:text-3xl font-bold text-emerald-400 w-6 text-center">0</span>
+                            <div class="flex flex-col items-center px-2 border-x border-slate-800">
+                                <span id="match-phase-badge" class="text-[9px] font-extrabold uppercase tracking-widest text-rose-400 flex items-center gap-1">
+                                    <span id="match-live-dot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                    <span>EN VIVO</span>
+                                </span>
+                                <span id="match-clock" class="font-fut text-sm font-bold text-amber-300 leading-tight">00'</span>
+                            </div>
+                            <span id="match-score-p2" class="font-fut text-2xl sm:text-3xl font-bold text-cyan-400 w-6 text-center">0</span>
+                        </div>
+
+                        <!-- Equipo 2 + Controles -->
+                        <div class="flex items-center gap-3 ml-auto sm:ml-0">
+                            <div class="flex items-center gap-2.5 min-w-0 text-right">
+                                <div class="min-w-0">
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <span id="match-p2-ovr" class="text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded">00 OVR</span>
+                                        <span id="match-p2-name" class="font-fut text-sm sm:text-base font-bold text-cyan-300 truncate max-w-[110px] sm:max-w-[160px]">@jugador2</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 uppercase tracking-wider hidden sm:block">Visitante · Cian United</p>
+                                </div>
+                                <img id="match-p2-avatar" src="" alt="Equipo 2" class="w-9 h-9 rounded-full border-2 border-cyan-400 object-cover bg-slate-900 shrink-0">
+                            </div>
+
+                            <div class="flex items-center gap-1.5 pl-2 border-l border-slate-800">
+                                <button id="match-sound-btn" type="button" title="Activar/Silenciar sonido del partido" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center text-xs transition cursor-pointer">
+                                    <i class="fa-solid fa-volume-xmark"></i>
+                                </button>
+                                <button id="match-skip-btn" type="button" title="Ir al resultado final" class="px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-solid fa-forward-fast"></i>
+                                    <span class="hidden md:inline">Saltar</span>
+                                </button>
+                                <button id="match-replay-btn" type="button" title="Repetir partido" class="px-2.5 h-8 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                    <span class="hidden md:inline">Repetir</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campo de Fútbol Caricaturesco SVG -->
+                    <div class="relative w-full bg-slate-950 select-none overflow-hidden">
+                        <svg id="cartoon-pitch-svg" viewBox="0 0 900 460" class="w-full h-auto block" role="img" aria-label="Campo de fútbol animado con los dos equipos enfrentándose">
+                            <defs>
+                                <clipPath id="clip-cap-1">
+                                    <circle cx="0" cy="-24" r="14" />
+                                </clipPath>
+                                <clipPath id="clip-cap-2">
+                                    <circle cx="0" cy="-24" r="14" />
+                                </clipPath>
+                                <radialGradient id="stadium-light-left" cx="15%" cy="10%" r="55%">
+                                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+                                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                </radialGradient>
+                                <radialGradient id="stadium-light-right" cx="85%" cy="10%" r="55%">
+                                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+                                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                </radialGradient>
+                                <pattern id="net-pattern" width="8" height="8" patternUnits="userSpaceOnUse">
+                                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+                                </pattern>
+                            </defs>
+
+                            <!-- Gradas Superiores y Vallas Publicitarias -->
+                            <rect x="0" y="0" width="900" height="46" fill="#0f172a" />
+                            <g id="pitch-crowd">
+                                <g class="crowd-bob-1">
+                                    <circle cx="45" cy="18" r="7" fill="#10b981" /><circle cx="75" cy="20" r="7" fill="#f59e0b" />
+                                    <circle cx="105" cy="17" r="7" fill="#34d399" /><circle cx="135" cy="19" r="7" fill="#f43f5e" />
+                                    <circle cx="165" cy="18" r="7" fill="#10b981" /><circle cx="195" cy="20" r="7" fill="#eab308" />
+                                    <circle cx="255" cy="18" r="7" fill="#34d399" /><circle cx="285" cy="19" r="7" fill="#38bdf8" />
+                                    <circle cx="345" cy="18" r="7" fill="#10b981" /><circle cx="405" cy="19" r="7" fill="#f59e0b" />
+                                    <circle cx="465" cy="18" r="7" fill="#06b6d4" /><circle cx="525" cy="19" r="7" fill="#38bdf8" />
+                                    <circle cx="585" cy="18" r="7" fill="#f43f5e" /><circle cx="645" cy="19" r="7" fill="#22d3ee" />
+                                    <circle cx="705" cy="18" r="7" fill="#06b6d4" /><circle cx="765" cy="19" r="7" fill="#eab308" />
+                                    <circle cx="825" cy="18" r="7" fill="#22d3ee" /><circle cx="855" cy="17" r="7" fill="#38bdf8" />
+                                </g>
+                                <g class="crowd-bob-2">
+                                    <circle cx="60" cy="22" r="6" fill="#38bdf8" /><circle cx="90" cy="21" r="6" fill="#a78bfa" />
+                                    <circle cx="120" cy="22" r="6" fill="#10b981" /><circle cx="150" cy="21" r="6" fill="#fb923c" />
+                                    <circle cx="225" cy="22" r="6" fill="#34d399" /><circle cx="315" cy="21" r="6" fill="#f59e0b" />
+                                    <circle cx="375" cy="22" r="6" fill="#10b981" /><circle cx="435" cy="21" r="6" fill="#38bdf8" />
+                                    <circle cx="495" cy="22" r="6" fill="#eab308" /><circle cx="555" cy="21" r="6" fill="#22d3ee" />
+                                    <circle cx="615" cy="22" r="6" fill="#06b6d4" /><circle cx="675" cy="21" r="6" fill="#a78bfa" />
+                                    <circle cx="735" cy="22" r="6" fill="#22d3ee" /><circle cx="795" cy="21" r="6" fill="#06b6d4" />
+                                </g>
+                            </g>
+                            <!-- Vallas LED -->
+                            <rect x="30" y="30" width="200" height="14" rx="3" fill="#065f46" stroke="#10b981" stroke-width="1" />
+                            <text x="130" y="40" text-anchor="middle" fill="#6ee7b7" font-family="Oswald, sans-serif" font-size="9" font-weight="bold" letter-spacing="1.5">GITFUT STADIUM</text>
+                            <rect x="245" y="30" width="195" height="14" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1" />
+                            <text x="342" y="40" text-anchor="middle" fill="#fcd34d" font-family="Oswald, sans-serif" font-size="9" font-weight="bold" letter-spacing="1.5">NO BUGS IN PROD</text>
+                            <rect x="460" y="30" width="195" height="14" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
+                            <text x="557" y="40" text-anchor="middle" fill="#7dd3fc" font-family="Oswald, sans-serif" font-size="9" font-weight="bold" letter-spacing="1.5">CLEAN CODE CUP</text>
+                            <rect x="670" y="30" width="200" height="14" rx="3" fill="#0e7490" stroke="#22d3ee" stroke-width="1" />
+                            <text x="770" y="40" text-anchor="middle" fill="#a5f3fc" font-family="Oswald, sans-serif" font-size="9" font-weight="bold" letter-spacing="1.5">1V1 DEVELOPERS</text>
+
+                            <!-- Césped del Campo con Franjas Caricaturescas -->
+                            <rect x="0" y="46" width="900" height="414" fill="#15803d" />
+                            <g id="pitch-stripes">
+                                <rect x="40" y="56" width="82" height="384" fill="#16a34a" />
+                                <rect x="204" y="56" width="82" height="384" fill="#16a34a" />
+                                <rect x="368" y="56" width="82" height="384" fill="#16a34a" />
+                                <rect x="532" y="56" width="82" height="384" fill="#16a34a" />
+                                <rect x="696" y="56" width="82" height="384" fill="#16a34a" />
+                            </g>
+
+                            <!-- Iluminación de Reflectores -->
+                            <rect x="0" y="46" width="900" height="414" fill="url(#stadium-light-left)" pointer-events="none" />
+                            <rect x="0" y="46" width="900" height="414" fill="url(#stadium-light-right)" pointer-events="none" />
+
+                            <!-- Líneas Blancas del Campo -->
+                            <g stroke="rgba(255,255,255,0.88)" stroke-width="3" fill="none">
+                                <!-- Perímetro -->
+                                <rect x="44" y="60" width="812" height="376" rx="4" />
+                                <!-- Línea de Medio Campo -->
+                                <line x1="450" y1="60" x2="450" y2="436" />
+                                <!-- Círculo Central -->
+                                <circle cx="450" cy="248" r="56" />
+                                <circle cx="450" cy="248" r="4" fill="#ffffff" />
+                                <!-- Área Grande Izquierda -->
+                                <rect x="44" y="138" width="115" height="220" />
+                                <rect x="44" y="188" width="46" height="120" />
+                                <circle cx="122" cy="248" r="3" fill="#ffffff" />
+                                <path d="M 159 202 A 50 50 0 0 1 159 294" />
+                                <!-- Área Grande Derecha -->
+                                <rect x="741" y="138" width="115" height="220" />
+                                <rect x="810" y="188" width="46" height="120" />
+                                <circle cx="778" cy="248" r="3" fill="#ffffff" />
+                                <path d="M 741 202 A 50 50 0 0 0 741 294" />
+                                <!-- Arcos de Córner -->
+                                <path d="M 44 74 A 14 14 0 0 0 58 60" />
+                                <path d="M 842 60 A 14 14 0 0 0 856 74" />
+                                <path d="M 58 436 A 14 14 0 0 0 44 422" />
+                                <path d="M 856 422 A 14 14 0 0 0 842 436" />
+                            </g>
+
+                            <!-- Portería Izquierda (Equipo 1) -->
+                            <g id="goal-left">
+                                <rect x="14" y="196" width="30" height="104" fill="url(#net-pattern)" stroke="#cbd5e1" stroke-width="2.5" rx="3" />
+                                <line x1="44" y1="194" x2="44" y2="302" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+                                <circle cx="44" cy="194" r="3.5" fill="#10b981" />
+                                <circle cx="44" cy="302" r="3.5" fill="#10b981" />
+                            </g>
+
+                            <!-- Portería Derecha (Equipo 2) -->
+                            <g id="goal-right">
+                                <rect x="856" y="196" width="30" height="104" fill="url(#net-pattern)" stroke="#cbd5e1" stroke-width="2.5" rx="3" />
+                                <line x1="856" y1="194" x2="856" y2="302" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+                                <circle cx="856" cy="194" r="3.5" fill="#22d3ee" />
+                                <circle cx="856" cy="302" r="3.5" fill="#22d3ee" />
+                            </g>
+
+                            <!-- Capa de Efectos (Polvo, Estela de Tiro) -->
+                            <g id="pitch-effects-layer"></g>
+
+                            <!-- Capa de Jugadores Caricaturescos (5 vs 5) -->
+                            <g id="pitch-players-layer"></g>
+
+                            <!-- Balón de Fútbol Caricaturesco -->
+                            <g id="pitch-ball" transform="translate(450, 248)">
+                                <ellipse id="pitch-ball-shadow" cx="0" cy="10" rx="9" ry="4" fill="rgba(0,0,0,0.4)" />
+                                <g id="pitch-ball-body">
+                                    <circle cx="0" cy="0" r="10" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+                                    <polygon points="0,-4 4,-1 2.5,3.5 -2.5,3.5 -4,-1" fill="#0f172a" />
+                                    <line x1="0" y1="-4" x2="0" y2="-10" stroke="#0f172a" stroke-width="1.5" />
+                                    <line x1="4" y1="-1" x2="9.5" y2="-3" stroke="#0f172a" stroke-width="1.5" />
+                                    <line x1="-4" y1="-1" x2="-9.5" y2="-3" stroke="#0f172a" stroke-width="1.5" />
+                                    <line x1="2.5" y1="3.5" x2="6" y2="8" stroke="#0f172a" stroke-width="1.5" />
+                                    <line x1="-2.5" y1="3.5" x2="-6" y2="8" stroke="#0f172a" stroke-width="1.5" />
+                                </g>
+                            </g>
+                        </svg>
+
+                        <!-- Confeti y Carteles Estilo Cómic -->
+                        <div id="pitch-confetti" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+                        <div id="pitch-comic-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center"></div>
+                    </div>
+
+                    <!-- Barra de Narración en Vivo -->
+                    <div class="bg-slate-950/95 border-t border-slate-800 px-4 py-2.5 flex items-center gap-3">
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-fut text-xs font-bold uppercase tracking-wider shrink-0" id="match-minute-badge">00'</span>
+                        <p id="match-commentary-text" class="text-xs sm:text-sm text-slate-200 font-medium truncate">
+                            ¡Los equipos saltan al terreno de juego! Todo listo para el pitazo inicial...
+                        </p>
+                    </div>
+                </section>
+
                 <!-- Arena de Cartas Lado a Lado -->
                 <div class="grid grid-cols-1 lg:grid-cols-11 gap-6 items-center">
                     <!-- Carta Jugador 1 -->
@@ -875,6 +1160,7 @@
         function switchAppMode(mode) {
             state.activeMode = mode;
             if (mode === 'single') {
+                if (typeof CartoonMatchEngine !== 'undefined') CartoonMatchEngine.stop();
                 elements.singleModeContainer.classList.remove('hidden');
                 elements.vsModeContainer.classList.add('hidden');
 
@@ -1976,6 +2262,9 @@
             // Generar Veredicto del Analista Técnico
             generateVSVerdict(p1, p2, p1Composite, p2Composite);
 
+            // Iniciar animación caricaturesca del partido 5v5 en el estadio
+            CartoonMatchEngine.init(p1, p2, p1Composite, p2Composite);
+
             // Renderizar barras comparativas cara a cara
             const metricsToCompare = [
                 { label: 'Media General (OVR)', v1: p1.evaluation.ovr, v2: p2.evaluation.ovr, max: 99, unit: '' },
@@ -2312,6 +2601,659 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
         }
+
+        // =========================================================================
+        // MOTOR DE PARTIDO CARICATURESCO 5v5 EN EL ESTADIO (MODO VS)
+        // =========================================================================
+        const MatchAudio = (() => {
+            let ctx = null;
+            let enabled = false;
+
+            function getCtx() {
+                if (!enabled) return null;
+                try {
+                    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (ctx.state === 'suspended') ctx.resume();
+                    return ctx;
+                } catch {
+                    return null;
+                }
+            }
+
+            return {
+                isEnabled: () => enabled,
+                toggle() {
+                    enabled = !enabled;
+                    if (enabled) getCtx();
+                    return enabled;
+                },
+                whistle() {
+                    const c = getCtx();
+                    if (!c) return;
+                    const now = c.currentTime;
+                    const osc = c.createOscillator();
+                    const gain = c.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(2650, now);
+                    osc.frequency.setValueAtTime(2820, now + 0.08);
+                    osc.frequency.setValueAtTime(2600, now + 0.16);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                    osc.connect(gain);
+                    gain.connect(c.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.34);
+                },
+                kick() {
+                    const c = getCtx();
+                    if (!c) return;
+                    const now = c.currentTime;
+                    const osc = c.createOscillator();
+                    const gain = c.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.exponentialRampToValueAtTime(45, now + 0.11);
+                    gain.gain.setValueAtTime(0.16, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                    osc.connect(gain);
+                    gain.connect(c.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.13);
+                },
+                goalCheer() {
+                    const c = getCtx();
+                    if (!c) return;
+                    const now = c.currentTime;
+                    [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+                        const osc = c.createOscillator();
+                        const gain = c.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                        gain.gain.setValueAtTime(0.08, now + idx * 0.06);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55 + idx * 0.06);
+                        osc.connect(gain);
+                        gain.connect(c.destination);
+                        osc.start(now + idx * 0.06);
+                        osc.stop(now + 0.62 + idx * 0.06);
+                    });
+                }
+            };
+        })();
+
+        const CartoonMatchEngine = (() => {
+            const DURATION_MS = 7200;
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+
+            // Formaciones base 5v5: [GK, DEF, MID, CAP(#10), FWD(#9)]
+            const BASE_T1 = [
+                { x: 74, y: 248 },
+                { x: 185, y: 175 },
+                { x: 255, y: 315 },
+                { x: 345, y: 215 },
+                { x: 405, y: 270 }
+            ];
+            const BASE_T2 = [
+                { x: 826, y: 248 },
+                { x: 715, y: 315 },
+                { x: 645, y: 175 },
+                { x: 555, y: 270 },
+                { x: 495, y: 215 }
+            ];
+
+            let rafId = null;
+            let startTime = 0;
+            let script = null;
+            let triggeredEvents = new Set();
+            let playerNodes = [];
+            let controlsBound = false;
+
+            const dom = {
+                playersLayer: () => document.getElementById('pitch-players-layer'),
+                effectsLayer: () => document.getElementById('pitch-effects-layer'),
+                ball: () => document.getElementById('pitch-ball'),
+                ballBody: () => document.getElementById('pitch-ball-body'),
+                ballShadow: () => document.getElementById('pitch-ball-shadow'),
+                confetti: () => document.getElementById('pitch-confetti'),
+                comicOverlay: () => document.getElementById('pitch-comic-overlay'),
+                goalLeft: () => document.getElementById('goal-left'),
+                goalRight: () => document.getElementById('goal-right'),
+                scoreP1: () => document.getElementById('match-score-p1'),
+                scoreP2: () => document.getElementById('match-score-p2'),
+                clock: () => document.getElementById('match-clock'),
+                minuteBadge: () => document.getElementById('match-minute-badge'),
+                commentary: () => document.getElementById('match-commentary-text'),
+                phaseBadge: () => document.getElementById('match-phase-badge')
+            };
+
+            function createPlayerSVG(team, idx, bundle) {
+                const isTeam1 = team === 1;
+                const isCaptain = idx === 3;
+                const isGK = idx === 0;
+                const numbers = ['1', '4', '8', '10', '9'];
+                const jerseyMain = isGK ? (isTeam1 ? '#f59e0b' : '#ec4899') : (isTeam1 ? '#10b981' : '#06b6d4');
+                const jerseyDark = isGK ? (isTeam1 ? '#b45309' : '#be185d') : (isTeam1 ? '#047857' : '#0e7490');
+                const skinTones = ['#fde68a', '#fed7aa', '#fdba74', '#f3d2b3', '#e5b887'];
+                const hairColors = ['#1e293b', '#451a03', '#78350f', '#0f172a', '#b45309'];
+                const skin = skinTones[(idx + team) % skinTones.length];
+                const hair = hairColors[(idx * 2 + team) % hairColors.length];
+                const dir = isTeam1 ? 1 : -1;
+
+                const g = document.createElementNS(SVG_NS, 'g');
+                g.setAttribute('class', 'cartoon-player-running');
+
+                const basePos = isTeam1 ? BASE_T1[idx] : BASE_T2[idx];
+                g.setAttribute('transform', `translate(${basePos.x}, ${basePos.y})`);
+
+                let headMarkup = '';
+                if (isCaptain) {
+                    const clipId = isTeam1 ? 'clip-cap-1' : 'clip-cap-2';
+                    const ringColor = isTeam1 ? '#34d399' : '#22d3ee';
+                    headMarkup = `
+                        <circle cx="0" cy="-24" r="16.5" fill="${ringColor}" stroke="#facc15" stroke-width="2.5" />
+                        <image href="${bundle.userData.avatar_url}" x="-14" y="-38" width="28" height="28" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice" />
+                        <path d="M -8 -40 L -4 -47 L 0 -41 L 4 -47 L 8 -40 Z" fill="#facc15" stroke="#0f172a" stroke-width="1.2" />
+                    `;
+                } else {
+                    const accessory = idx === 1
+                        ? `<rect x="-13" y="-32" width="26" height="4.5" rx="2" fill="${jerseyMain}" stroke="#0f172a" stroke-width="1" />`
+                        : idx === 4
+                            ? `<rect x="${dir > 0 ? -2 : -10}" y="-28" width="12" height="5" rx="1.5" fill="#0f172a" />`
+                            : `<path d="M -13 -28 Q 0 -44 13 -28 Z" fill="${hair}" />`;
+
+                    headMarkup = `
+                        <circle cx="0" cy="-24" r="13.5" fill="${skin}" stroke="#0f172a" stroke-width="2" />
+                        <path d="M -13 -27 Q 0 -41 13 -27" fill="${hair}" stroke="#0f172a" stroke-width="1.5" />
+                        ${accessory}
+                        <circle cx="${dir * 4 - 3}" cy="-24" r="2.2" fill="#0f172a" />
+                        <circle cx="${dir * 4 + 4}" cy="-24" r="2.2" fill="#0f172a" />
+                        <circle cx="${dir * 4 - 2.3}" cy="-24.8" r="0.8" fill="#ffffff" />
+                        <circle cx="${dir * 4 + 4.7}" cy="-24.8" r="0.8" fill="#ffffff" />
+                        <path d="M ${dir * 2 - 3} -17 Q ${dir * 2 + 1} -14 ${dir * 2 + 5} -17" fill="none" stroke="#0f172a" stroke-width="1.6" stroke-linecap="round" />
+                    `;
+                }
+
+                g.innerHTML = `
+                    <ellipse cx="0" cy="14" rx="13" ry="5" fill="rgba(0,0,0,0.35)" />
+                    <g class="player-body">
+                        <!-- Botines -->
+                        <ellipse cx="-5" cy="11" rx="5" ry="3.2" fill="#0f172a" />
+                        <ellipse cx="6" cy="11" rx="5" ry="3.2" fill="#0f172a" />
+                        <!-- Short -->
+                        <rect x="-9" y="1" width="18" height="8" rx="3" fill="#0f172a" />
+                        <!-- Camiseta -->
+                        <rect x="-11" y="-12" width="22" height="15" rx="5" fill="${jerseyMain}" stroke="#0f172a" stroke-width="2" />
+                        <path d="M -4 -12 L 4 -12 L 2 3 L -2 3 Z" fill="${jerseyDark}" opacity="0.55" />
+                        <text x="0" y="-2" text-anchor="middle" fill="#ffffff" font-family="Oswald, sans-serif" font-size="8.5" font-weight="bold">${numbers[idx]}</text>
+                        ${isGK ? `<circle cx="-13" cy="-4" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" /><circle cx="13" cy="-4" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />` : ''}
+                        <!-- Cabeza -->
+                        ${headMarkup}
+                        <!-- Efecto Mareo (oculto hasta final si pierde) -->
+                        <g class="dizzy-fx hidden">
+                            <text x="12" y="-38" font-size="11">💦</text>
+                        </g>
+                        <!-- Efecto Trofeo (solo capitán ganador) -->
+                        <g class="trophy-fx hidden">
+                            <text x="-8" y="-48" font-size="15">🏆</text>
+                        </g>
+                    </g>
+                `;
+                return g;
+            }
+
+            function buildTeamOffsets(ballX, ballY, attackingTeam) {
+                const t1 = BASE_T1.map((p, i) => {
+                    if (i === 0) return { x: 64, y: Math.max(185, Math.min(310, ballY * 0.4 + 148)) };
+                    const push = attackingTeam === 1 ? 115 : -45;
+                    const attract = i >= 3 ? 0.32 : 0.14;
+                    return {
+                        x: Math.max(115, Math.min(820, p.x + push + (ballX - p.x) * attract)),
+                        y: Math.max(85, Math.min(410, p.y + (ballY - p.y) * attract))
+                    };
+                });
+
+                const t2 = BASE_T2.map((p, i) => {
+                    if (i === 0) return { x: 836, y: Math.max(185, Math.min(310, ballY * 0.4 + 148)) };
+                    const push = attackingTeam === 2 ? -115 : 45;
+                    const attract = i >= 3 ? 0.32 : 0.14;
+                    return {
+                        x: Math.max(80, Math.min(785, p.x + push + (ballX - p.x) * attract)),
+                        y: Math.max(85, Math.min(410, p.y + (ballY - p.y) * attract))
+                    };
+                });
+
+                return { t1, t2 };
+            }
+
+            function generateMatchScript(p1, p2, p1Comp, p2Comp) {
+                const diff = Math.abs(p1Comp - p2Comp);
+                let g1 = 2;
+                let g2 = 2;
+                if (p1Comp > p2Comp) {
+                    g1 = diff >= 10 ? 4 : 3;
+                    g2 = diff >= 10 ? 1 : 2;
+                } else if (p2Comp > p1Comp) {
+                    g2 = diff >= 10 ? 4 : 3;
+                    g1 = diff >= 10 ? 1 : 2;
+                }
+
+                const u1 = `@${p1.userData.login}`;
+                const u2 = `@${p2.userData.login}`;
+
+                // Secuencia cronológica de goles intercalados
+                const goalSequence = [];
+                let c1 = 0;
+                let c2 = 0;
+                while (c1 < g1 || c2 < g2) {
+                    if (c1 < g1 && (c2 >= g2 || (c1 + c2) % 2 === 0)) {
+                        c1++;
+                        goalSequence.push(1);
+                    } else if (c2 < g2) {
+                        c2++;
+                        goalSequence.push(2);
+                    }
+                }
+
+                const keyframes = [
+                    {
+                        t: 0.0,
+                        ball: { x: 450, y: 248, z: 0 },
+                        ...buildTeamOffsets(450, 248, 0),
+                        event: {
+                            id: 'kickoff',
+                            type: 'banner',
+                            banner: '¡KICK OFF!',
+                            bannerColor: 'from-amber-400 to-orange-500 text-slate-950',
+                            commentary: `¡Pitazo inicial! ${u1} (RIT ${p1.evaluation.stats.rit}) y ${u2} (RIT ${p2.evaluation.stats.rit}) arrancan a toda máquina.`,
+                            sound: 'whistle'
+                        }
+                    }
+                ];
+
+                const totalGoals = goalSequence.length;
+                const playStart = 0.12;
+                const playEnd = 0.86;
+                const slot = (playEnd - playStart) / totalGoals;
+
+                const devVerbs1 = [
+                    `¡Tiki-taka de Pull Requests de ${u1}!`,
+                    `¡${u1} mete un sprint con push directo al área!`,
+                    `¡Regate poliglota de ${u1} dejando rivales atrás!`,
+                    `¡Bombazo de ${u1} con ${p1.evaluation.stats.tir} de TIR!`
+                ];
+                const devVerbs2 = [
+                    `¡Contragolpe eléctrico de ${u2}!`,
+                    `¡${u2} filtra un pase quirúrgico (PAS ${p2.evaluation.stats.pas})!`,
+                    `¡${u2} rompe la defensa con código limpio!`,
+                    `¡Zapatazo al ángulo de ${u2} con ${p2.evaluation.stats.tir} de TIR!`
+                ];
+
+                goalSequence.forEach((scorerTeam, idx) => {
+                    const tBase = playStart + idx * slot;
+                    const isT1 = scorerTeam === 1;
+                    const midX = isT1 ? 610 : 290;
+                    const midY = idx % 2 === 0 ? 155 : 340;
+                    const goalX = isT1 ? 865 : 35;
+                    const goalY = 230 + ((idx % 3) - 1) * 22;
+
+                    // Jugada de aproximación
+                    keyframes.push({
+                        t: tBase + slot * 0.38,
+                        ball: { x: midX, y: midY, z: 10 },
+                        ...buildTeamOffsets(midX, midY, scorerTeam),
+                        event: {
+                            id: `build-${idx}`,
+                            type: 'play',
+                            dustAt: { x: midX - (isT1 ? 25 : -25), y: midY + 8 },
+                            commentary: isT1 ? devVerbs1[idx % devVerbs1.length] : devVerbs2[idx % devVerbs2.length],
+                            sound: 'kick'
+                        }
+                    });
+
+                    // Disparo y GOOOOL
+                    keyframes.push({
+                        t: tBase + slot * 0.78,
+                        ball: { x: goalX, y: goalY, z: 14 },
+                        ...buildTeamOffsets(isT1 ? 740 : 160, goalY, scorerTeam),
+                        event: {
+                            id: `goal-${idx}`,
+                            type: 'goal',
+                            scorerTeam,
+                            banner: '¡GOOOOL!',
+                            bannerColor: isT1 ? 'from-emerald-400 to-teal-300 text-slate-950' : 'from-cyan-400 to-sky-300 text-slate-950',
+                            commentary: isT1
+                                ? `¡GOOOOL de ${u1}! ¡Merge directo a la red sin conflictos!`
+                                : `¡GOOOOL de ${u2}! ¡Deploy imparable al ángulo superior!`,
+                            sound: 'goal'
+                        }
+                    });
+
+                    // Reinicio rápido al centro si no es el último gol
+                    if (idx < totalGoals - 1) {
+                        keyframes.push({
+                            t: tBase + slot * 0.96,
+                            ball: { x: 450, y: 248, z: 0 },
+                            ...buildTeamOffsets(450, 248, 0),
+                            event: { id: `reset-${idx}`, type: 'reset', sound: 'kick' }
+                        });
+                    }
+                });
+
+                // Final del partido (90')
+                const winnerTeam = p1Comp > p2Comp ? 1 : (p2Comp > p1Comp ? 2 : 0);
+                keyframes.push({
+                    t: 0.93,
+                    ball: { x: 450, y: 248, z: 0 },
+                    ...buildTeamOffsets(450, 248, winnerTeam),
+                    event: {
+                        id: 'fulltime',
+                        type: 'fulltime',
+                        winnerTeam,
+                        banner: winnerTeam === 0 ? '¡EMPATE ÉPICO!' : `¡VICTORIA ${winnerTeam === 1 ? u1.toUpperCase() : u2.toUpperCase()}!`,
+                        bannerColor: 'from-amber-400 via-yellow-300 to-orange-400 text-slate-950',
+                        commentary: winnerTeam === 0
+                            ? `¡Final del partido (${g1}-${g2})! Empate técnico de alto voltaje entre ${u1} y ${u2}.`
+                            : `¡Pitazo final (${g1}-${g2})! ${winnerTeam === 1 ? u1 : u2} levanta la copa en el Estadio GitFut.`,
+                        sound: 'whistle'
+                    }
+                });
+
+                keyframes.push({
+                    t: 1.0,
+                    ball: { x: 450, y: 248, z: 0 },
+                    ...buildTeamOffsets(450, 248, winnerTeam)
+                });
+
+                return { keyframes, finalScore: { g1, g2 }, winnerTeam };
+            }
+
+            function lerp(a, b, t) {
+                return a + (b - a) * t;
+            }
+
+            function easeInOut(t) {
+                return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+            }
+
+            function spawnDust(x, y) {
+                const layer = dom.effectsLayer();
+                if (!layer) return;
+                const dust = document.createElementNS(SVG_NS, 'g');
+                dust.setAttribute('transform', `translate(${x}, ${y})`);
+                dust.setAttribute('class', 'dust-particle');
+                dust.innerHTML = `
+                    <circle cx="-4" cy="0" r="6" fill="rgba(255,255,255,0.65)" />
+                    <circle cx="4" cy="-2" r="5" fill="rgba(255,255,255,0.55)" />
+                    <circle cx="0" cy="3" r="4.5" fill="rgba(226,232,240,0.6)" />
+                `;
+                layer.appendChild(dust);
+                setTimeout(() => dust.remove(), 600);
+            }
+
+            function spawnConfetti(teamColor) {
+                const container = dom.confetti();
+                if (!container) return;
+                container.innerHTML = '';
+                const colors = teamColor === 1
+                    ? ['#10b981', '#34d399', '#facc15', '#ffffff']
+                    : teamColor === 2
+                        ? ['#06b6d4', '#38bdf8', '#facc15', '#ffffff']
+                        : ['#facc15', '#10b981', '#06b6d4', '#f43f5e'];
+
+                for (let i = 0; i < 34; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = `${Math.random() * 100}%`;
+                    piece.style.top = `${Math.random() * 20}%`;
+                    piece.style.backgroundColor = colors[i % colors.length];
+                    piece.style.animationDelay = `${Math.random() * 0.35}s`;
+                    container.appendChild(piece);
+                }
+                setTimeout(() => {
+                    if (container) container.innerHTML = '';
+                }, 2300);
+            }
+
+            function showComicBanner(text, gradientClass, persist = false) {
+                const overlay = dom.comicOverlay();
+                if (!overlay) return;
+                overlay.innerHTML = `
+                    <div class="comic-pop px-5 py-2 sm:px-7 sm:py-2.5 rounded-2xl bg-gradient-to-r ${gradientClass} border-4 border-slate-950 shadow-[0_8px_0_rgba(15,23,42,0.95)] font-fut text-xl sm:text-3xl font-extrabold uppercase tracking-wider">
+                        ${text}
+                    </div>
+                `;
+                if (!persist) {
+                    setTimeout(() => {
+                        if (overlay && overlay.textContent.trim() === text) overlay.innerHTML = '';
+                    }, 1050);
+                }
+            }
+
+            function applyFullTimeVisuals(winnerTeam) {
+                playerNodes.forEach(({ el, team, idx }) => {
+                    el.classList.remove('cartoon-player-running', 'cartoon-player-celebrating', 'cartoon-player-dizzy');
+                    const dizzy = el.querySelector('.dizzy-fx');
+                    const trophy = el.querySelector('.trophy-fx');
+                    if (dizzy) dizzy.classList.add('hidden');
+                    if (trophy) trophy.classList.add('hidden');
+
+                    if (winnerTeam === 0 || team === winnerTeam) {
+                        el.classList.add('cartoon-player-celebrating');
+                        if (idx === 3 && trophy) trophy.classList.remove('hidden');
+                    } else {
+                        el.classList.add('cartoon-player-dizzy');
+                        if (dizzy) dizzy.classList.remove('hidden');
+                    }
+                });
+
+                const badge = dom.phaseBadge();
+                if (badge) {
+                    badge.innerHTML = `<span class="text-emerald-400">FINAL</span>`;
+                }
+            }
+
+            function handleEvent(ev, currentScores) {
+                if (!ev || triggeredEvents.has(ev.id)) return;
+                triggeredEvents.add(ev.id);
+
+                if (ev.sound === 'whistle') MatchAudio.whistle();
+                if (ev.sound === 'kick') MatchAudio.kick();
+                if (ev.sound === 'goal') MatchAudio.goalCheer();
+
+                if (ev.dustAt) spawnDust(ev.dustAt.x, ev.dustAt.y);
+
+                if (ev.commentary && dom.commentary()) {
+                    dom.commentary().textContent = ev.commentary;
+                }
+
+                if (ev.type === 'banner') {
+                    showComicBanner(ev.banner, ev.bannerColor, false);
+                } else if (ev.type === 'goal') {
+                    if (ev.scorerTeam === 1) currentScores.g1++;
+                    else currentScores.g2++;
+
+                    if (dom.scoreP1()) dom.scoreP1().textContent = currentScores.g1;
+                    if (dom.scoreP2()) dom.scoreP2().textContent = currentScores.g2;
+
+                    const goalEl = ev.scorerTeam === 1 ? dom.goalRight() : dom.goalLeft();
+                    if (goalEl) {
+                        goalEl.classList.remove('goal-shake');
+                        void goalEl.offsetWidth;
+                        goalEl.classList.add('goal-shake');
+                    }
+
+                    spawnConfetti(ev.scorerTeam);
+                    showComicBanner(ev.banner, ev.bannerColor, false);
+                } else if (ev.type === 'fulltime') {
+                    spawnConfetti(ev.winnerTeam);
+                    showComicBanner(ev.banner, ev.bannerColor, true);
+                    applyFullTimeVisuals(ev.winnerTeam);
+                }
+            }
+
+            function renderAtProgress(progress, currentScores) {
+                if (!script) return;
+                const { keyframes } = script;
+
+                // Reloj 00' -> 90'
+                const minute = Math.min(90, Math.round(progress * 90));
+                const minStr = `${String(minute).padStart(2, '0')}'`;
+                if (dom.clock()) dom.clock().textContent = minStr;
+                if (dom.minuteBadge()) dom.minuteBadge().textContent = minStr;
+
+                // Encontrar segmento actual
+                let prev = keyframes[0];
+                let next = keyframes[keyframes.length - 1];
+                for (let i = 0; i < keyframes.length - 1; i++) {
+                    if (progress >= keyframes[i].t && progress <= keyframes[i + 1].t) {
+                        prev = keyframes[i];
+                        next = keyframes[i + 1];
+                        break;
+                    }
+                }
+
+                // Disparar eventos alcanzados
+                keyframes.forEach(kf => {
+                    if (progress >= kf.t && kf.event) {
+                        handleEvent(kf.event, currentScores);
+                    }
+                });
+
+                const span = Math.max(0.0001, next.t - prev.t);
+                const localT = easeInOut(Math.max(0, Math.min(1, (progress - prev.t) / span)));
+
+                // Posición del balón con arco 2.5D
+                const bx = lerp(prev.ball.x, next.ball.x, localT);
+                const by = lerp(prev.ball.y, next.ball.y, localT);
+                const bz = lerp(prev.ball.z || 0, next.ball.z || 0, localT) + Math.sin(localT * Math.PI) * 14;
+                if (dom.ball()) dom.ball().setAttribute('transform', `translate(${bx.toFixed(1)}, ${(by - bz * 0.45).toFixed(1)})`);
+                if (dom.ballShadow()) dom.ballShadow().setAttribute('cy', (10 + bz * 0.45).toFixed(1));
+                if (dom.ballBody()) dom.ballBody().setAttribute('transform', `rotate(${Math.round(progress * 1440)})`);
+
+                // Posición de los 10 jugadores
+                playerNodes.forEach(({ el, team, idx }) => {
+                    const pStart = team === 1 ? prev.t1[idx] : prev.t2[idx];
+                    const pEnd = team === 1 ? next.t1[idx] : next.t2[idx];
+                    const px = lerp(pStart.x, pEnd.x, localT);
+                    const py = lerp(pStart.y, pEnd.y, localT);
+                    el.setAttribute('transform', `translate(${px.toFixed(1)}, ${py.toFixed(1)})`);
+                });
+            }
+
+            function bindControls() {
+                if (controlsBound) return;
+                controlsBound = true;
+
+                document.getElementById('match-sound-btn')?.addEventListener('click', () => {
+                    const on = MatchAudio.toggle();
+                    const btn = document.getElementById('match-sound-btn');
+                    if (btn) {
+                        btn.innerHTML = on
+                            ? '<i class="fa-solid fa-volume-high text-emerald-400"></i>'
+                            : '<i class="fa-solid fa-volume-xmark"></i>';
+                    }
+                });
+
+                document.getElementById('match-skip-btn')?.addEventListener('click', () => {
+                    skipToEnd();
+                });
+
+                document.getElementById('match-replay-btn')?.addEventListener('click', () => {
+                    play();
+                });
+            }
+
+            function stop() {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            }
+
+            function play() {
+                if (!script) return;
+                stop();
+                triggeredEvents.clear();
+
+                if (dom.scoreP1()) dom.scoreP1().textContent = '0';
+                if (dom.scoreP2()) dom.scoreP2().textContent = '0';
+                if (dom.comicOverlay()) dom.comicOverlay().innerHTML = '';
+                if (dom.confetti()) dom.confetti().innerHTML = '';
+                if (dom.phaseBadge()) {
+                    dom.phaseBadge().innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span><span>EN VIVO</span>`;
+                }
+
+                playerNodes.forEach(({ el }) => {
+                    el.classList.remove('cartoon-player-celebrating', 'cartoon-player-dizzy');
+                    el.classList.add('cartoon-player-running');
+                    el.querySelector('.dizzy-fx')?.classList.add('hidden');
+                    el.querySelector('.trophy-fx')?.classList.add('hidden');
+                });
+
+                const currentScores = { g1: 0, g2: 0 };
+                startTime = performance.now();
+
+                const tick = (now) => {
+                    const progress = Math.min(1, (now - startTime) / DURATION_MS);
+                    renderAtProgress(progress, currentScores);
+                    if (progress < 1) {
+                        rafId = requestAnimationFrame(tick);
+                    } else {
+                        rafId = null;
+                    }
+                };
+                rafId = requestAnimationFrame(tick);
+            }
+
+            function skipToEnd() {
+                if (!script) return;
+                stop();
+                const currentScores = { g1: script.finalScore.g1, g2: script.finalScore.g2 };
+                if (dom.scoreP1()) dom.scoreP1().textContent = currentScores.g1;
+                if (dom.scoreP2()) dom.scoreP2().textContent = currentScores.g2;
+
+                // Marcar todos los eventos previos como disparados excepto fulltime
+                script.keyframes.forEach(kf => {
+                    if (kf.event && kf.event.type !== 'fulltime') {
+                        triggeredEvents.add(kf.event.id);
+                    }
+                });
+                renderAtProgress(1.0, currentScores);
+            }
+
+            function init(p1, p2, p1Comp, p2Comp) {
+                bindControls();
+                stop();
+
+                // Actualizar marcador superior
+                document.getElementById('match-p1-avatar').src = p1.userData.avatar_url;
+                document.getElementById('match-p2-avatar').src = p2.userData.avatar_url;
+                document.getElementById('match-p1-name').textContent = `@${p1.userData.login}`;
+                document.getElementById('match-p2-name').textContent = `@${p2.userData.login}`;
+                document.getElementById('match-p1-ovr').textContent = `${p1.evaluation.ovr} OVR`;
+                document.getElementById('match-p2-ovr').textContent = `${p2.evaluation.ovr} OVR`;
+
+                // Construir los 10 muñequitos caricaturescos
+                const layer = dom.playersLayer();
+                if (layer) {
+                    layer.innerHTML = '';
+                    playerNodes = [];
+                    for (let i = 0; i < 5; i++) {
+                        const el1 = createPlayerSVG(1, i, p1);
+                        layer.appendChild(el1);
+                        playerNodes.push({ el: el1, team: 1, idx: i });
+
+                        const el2 = createPlayerSVG(2, i, p2);
+                        layer.appendChild(el2);
+                        playerNodes.push({ el: el2, team: 2, idx: i });
+                    }
+                }
+
+                script = generateMatchScript(p1, p2, p1Comp, p2Comp);
+                play();
+            }
+
+            return { init, play, skipToEnd, stop };
+        })();
     </script>
 </body>
 </html>
