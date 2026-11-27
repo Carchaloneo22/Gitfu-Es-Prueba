@@ -1,137 +1,137 @@
 <div align="center">
 
-<img src="public/mascot.webp" width="120" alt="GitFut mascot">
+<img src="public/mascot.webp" width="120" alt="Mascota de GitFut">
 
 # GitFut
 
-**your GitHub, rated out of 99** ⚽
+**Tu perfil de GitHub, valorado sobre 99** ⚽
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=20&duration=2600&pause=800&color=39D353&center=true&vCenter=true&width=660&height=42&lines=Turn+any+GitHub+profile+into+a+FIFA-style+card;Scored+live+from+real+commits%2C+stars+%26+PRs;Embed+it+anywhere+%E2%80%94+it+updates+itself" alt="Turn any GitHub profile into a player card, scored live, embeddable anywhere">
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=20&duration=2600&pause=800&color=39D353&center=true&vCenter=true&width=680&height=42&lines=Convierte+cualquier+perfil+de+GitHub+en+una+carta+estilo+FIFA;Evaluado+en+vivo+con+commits%2C+estrellas+y+PRs+reales;Ins%C3%A9rtala+donde+quieras+%E2%80%94+se+actualiza+sola" alt="Convierte cualquier perfil de GitHub en una carta de jugador evaluada en vivo">
 
 <br/><br/>
 
-<a href="https://gitfut.com/torvalds"><img src="https://gitfut.com/torvalds.png" width="240" alt="GitFut card"></a>
-<a href="https://gitfut.com/ThePrimeagen"><img src="https://gitfut.com/ThePrimeagen.png" width="240" alt="GitFut card"></a>
-<a href="https://gitfut.com/t3dotgg"><img src="https://gitfut.com/t3dotgg.png" width="240" alt="GitFut card"></a>
+<a href="https://gitfut.com/torvalds"><img src="https://gitfut.com/torvalds.png" width="240" alt="Carta GitFut de torvalds"></a>
+<a href="https://gitfut.com/ThePrimeagen"><img src="https://gitfut.com/ThePrimeagen.png" width="240" alt="Carta GitFut de ThePrimeagen"></a>
+<a href="https://gitfut.com/t3dotgg"><img src="https://gitfut.com/t3dotgg.png" width="240" alt="Carta GitFut de t3dotgg"></a>
 
 <br/><br/>
 
 </div>
 
-<br/>
+---
 
-## 🃏 &nbsp;Embed your card
+## 🃏 Inserta tu carta
 
-Your card lives at a URL. Drop it in your profile README, your portfolio, anywhere — and it **re-scouts itself** as your stats change.
+Tu carta vive en una URL. Agrégala al `README` de tu perfil, a tu portafolio o donde quieras: **se vuelve a evaluar automáticamente** a medida que cambian tus estadísticas.
 
 ```md
-[![My GitFut card](https://gitfut.com/YOUR_USERNAME.png)](https://gitfut.com/YOUR_USERNAME)
+[![Mi carta de GitFut](https://gitfut.com/TU_USUARIO.png)](https://gitfut.com/TU_USUARIO)
 ```
 
-| | |
+| Recurso | Descripción |
 |---|---|
-| **`gitfut.com/<username>.png`** | your card, as a live image |
-| **`gitfut.com/<username>`** | the full scout report |
-| **`?country=XX`** | override the flag (e.g. `?country=DZ`) |
+| **`gitfut.com/<usuario>.png`** | Tu carta en formato de imagen en vivo |
+| **`gitfut.com/<usuario>`** | El informe completo de ojeo (*scouting*) |
+| **`?country=XX`** | Sobrescribe la bandera manualmente (ej. `?country=ES`, `?country=MX`, `?country=AR`) |
 
-<br/>
+---
 
-## ⚙️ &nbsp;How the scouting works
+## ⚙️ Cómo funciona el ojeo (*Scouting*)
 
-Six signals from a live GitHub profile, each mapped to a football stat — read straight from GitHub's GraphQL API. No surveys, no self-reporting. Just the commits.
+Tomamos **seis señales reales** de tu perfil público en GitHub mediante la API GraphQL oficial y las transformamos en atributos futbolísticos. Sin encuestas ni autoevaluaciones: solo código y commits.
 
-| | Stat | Scouted from |
+| Atributo | Significado | Métrica evaluada en GitHub |
 |:--:|:--|:--|
-| **PAC** | Pace | Commits in the last year |
-| **SHO** | Shooting | Stars earned across repos |
-| **PAS** | Passing | Pull requests + followers |
-| **DRI** | Dribbling | Language diversity |
-| **DEF** | Defending | Reviews + issues |
-| **PHY** | Physical | Lifetime contributions |
+| **RIT** *(PAC)* | Ritmo | Commits realizados en el último año |
+| **TIR** *(SHO)* | Tiro | Estrellas acumuladas en tus repositorios |
+| **PAS** *(PAS)* | Pase | Pull Requests y seguidores |
+| **REG** *(DRI)* | Regate | Diversidad de lenguajes de programación |
+| **DEF** *(DEF)* | Defensa | Revisiones de código (*reviews*) e *issues* |
+| **FÍS** *(PHY)* | Físico | Contribuciones totales históricas |
 
-Your **overall** is the headline. Raw stats cap at **88** — the 90s are a legacy gate, earned with years and influence, so one heroic year won't crown you an Icon. Your **position** and **archetype** are read from your stat shape: a shooting spike scouts a poacher up top, a defending-and-passing lean scouts a deep playmaker.
+Tu **Media General (OVR)** es la protagonista. Las estadísticas base tienen un tope de **88**: superar la barrera de los **90** requiere trayectoria e influencia sostenida, de modo que un solo año brillante no basta para coronarte como **Ícono**.  
+Tu **posición** y **arquetipo** se calculan según la forma de tus estadísticas: un pico en *Tiro* define a un delantero goleador, mientras que un perfil fuerte en *Defensa* y *Pase* forma a un mediocentro organizador.
 
-Every card walks out in a finish:
+### Rarezas de Carta
 
 <div align="center">
 
-![Bronze](https://img.shields.io/badge/BRONZE-%E2%89%A464-CD7F32?style=flat-square&labelColor=2A1A0C)
-![Silver](https://img.shields.io/badge/SILVER-65--74-AAB2BD?style=flat-square&labelColor=262B33)
-![Gold](https://img.shields.io/badge/GOLD-75--84-E6B422?style=flat-square&labelColor=3A2806)
-![In-Form](https://img.shields.io/badge/IN--FORM-spike-E03E52?style=flat-square&labelColor=4A0A14)
+![Bronce](https://img.shields.io/badge/BRONCE-%E2%89%A464-CD7F32?style=flat-square&labelColor=2A1A0C)
+![Plata](https://img.shields.io/badge/PLATA-65--74-AAB2BD?style=flat-square&labelColor=262B33)
+![Oro](https://img.shields.io/badge/ORO-75--84-E6B422?style=flat-square&labelColor=3A2806)
+![En Forma](https://img.shields.io/badge/EN%20FORMA-racha-E03E52?style=flat-square&labelColor=4A0A14)
 ![TOTY](https://img.shields.io/badge/TOTY-85--89-3B7AFF?style=flat-square&labelColor=10254F)
-![Icon](https://img.shields.io/badge/ICON-90%2B-F3D688?style=flat-square&labelColor=2A1A45)
+![Ícono](https://img.shields.io/badge/%C3%8DCONO-90%2B-F3D688?style=flat-square&labelColor=2A1A45)
 
 </div>
 
-<br/>
+---
 
-## 🏆 &nbsp;Achievements & Awards
+## 🏆 Logros y Trofeos
 
-Standout cards earn trophies, shown on the scout report and carried into duels like a boxer's belts — a duel showcases what each player brings, it never awards anything itself. Click a trophy for its story: every win is attached to a year (or a World Cup edition) with the reason it was given. Rendered from pre-baked rotating sprites (no 3D runtime — see `scripts/bake-award-sprites.ts`):
+Las cartas más destacadas desbloquean trofeos que se muestran en el informe de ojeo y acompañan al jugador en los duelos como cinturones de campeón (los duelos exhiben las vitrinas de cada perfil, pero nunca otorgan trofeos).  
+Al hacer clic en cada trofeo puedes ver su historia: el año o edición del Mundial en que se ganó y el motivo exacto. Se renderizan mediante *sprites* precalculados (sin motor 3D en tiempo real; ver `scripts/bake-award-sprites.ts`).
 
-| Award | Won for |
+| Trofeo | Cómo se obtiene |
 | :---: | :--- |
-| **Ballon d'Or** | A calendar year that towers over the rest of your career — judged against your own history (log-scaled across commits, PRs, reviews and issues, so volume spam can't buy it). Repeatable, but every extra one is harder to win: up to 3, and Icons can take a 4th. |
-| **WC Golden Ball** | Best player of a World Cup — rising above your own pace while a tournament ran (2010 → 2026, era-adjusted: shipping on GitHub in 2010 already counted). One per edition. |
-| **Golden Boot** | The top scorer, held on current form — elite Shooting (`SHO` 80+) from a scoring position (`ST`/`RW`/`CAM`). |
-| **World Cup Trophy** | ¡Campeones! Spain won WC26 — a gift carried by every profile whose GitHub location is Spain. |
+| **Balón de Oro** | Un año calendario que sobresale por encima del resto de tu carrera, evaluado frente a tu propio historial con escala logarítmica (evita el *spam* de volumen). Repetible hasta 3 veces (4 para cartas **Ícono**). |
+| **Balón de Oro del Mundial** | Mejor jugador durante una Copa del Mundo (2010 → 2026): superar tu propio ritmo habitual mientras el torneo estaba en juego, con reglas ajustadas por época. Uno por edición. |
+| **Bota de Oro** | Máximo goleador según estado de forma actual: **Tiro (`TIR`) 80+** jugando en posición ofensiva (`DC` / `ED` / `MCO`). |
+| **Trofeo Copa del Mundo** | ¡Campeones! España ganó el Mundial 2026: un obsequio especial incluido en todo perfil cuya ubicación en GitHub indique España. |
 
-### The rulebook
+---
 
-Every scout fetches the profile's full history as per-year totals: commits, PRs, reviews, issues and private contributions, for every calendar year since the account was born. Yearly awards are judged on one score per year:
+### 📜 El Reglamento
 
+Cada evaluación consulta el historial completo del perfil año por año: commits, PRs, revisiones, *issues* y contribuciones privadas desde la creación de la cuenta. Los premios anuales se puntúan con esta fórmula:
+
+```text
+puntuacionAnual = 4·log(commits) + 3·log(PRs) + 3·log(reviews) + 2·log(issues) + 2·log(privadas)
 ```
-yearScore = 4·log(commits) + 3·log(PRs) + 3·log(reviews) + 2·log(issues) + 2·log(private)
-```
 
-The logs are the anti-spam mechanism. Each signal saturates: 20,000 commits score 17.2, barely ahead of the 13.2 that 2,000 earn. Meanwhile a year of 800 commits, 80 PRs, 80 reviews and 40 issues scores 26. Breadth collects from every term while volume on one axis stalls. There is no balance requirement, though: a commits-only kernel maintainer still scores on the volume terms alone.
+Los logaritmos actúan como mecanismo **anti-spam**: cada métrica se satura progresivamente (por ejemplo, 20.000 commits suman `17.2`, apenas por encima de los `13.2` que dan 2.000). En cambio, un año equilibrado con 800 commits, 80 PRs, 80 revisiones y 40 *issues* alcanza `26`. La amplitud suma en todos los frentes, aunque un mantenedor de kernel enfocado solo en commits sigue compitiendo por volumen puro.
 
-Every trophy except the Spanish gift also requires **overall 80+**. That's a floor, not a driver. It keeps thin profiles off the podium and decides nothing else.
+Salvo el obsequio conmemorativo de España, todos los trofeos exigen una **Media General (OVR) mínima de 80**. Es un umbral de entrada, no un multiplicador: mantiene fuera del podio a perfiles recién creados sin influir en nada más.
 
-#### Ballon d'Or
+#### 🥇 Balón de Oro
+Se evalúa frente a tu propia trayectoria, por lo que requiere al menos **2 años de historial**. Un año gana el premio si cumple las tres condiciones:
 
-Judged against your own career, so it needs at least two years of history. A year wins when it clears all three:
+1. **2.000+ contribuciones brutas:** No hay Balón de Oro en un año discreto, por más que destaque frente al resto.
+2. **Puntuación anual de 16+:** Rendimiento sólido en términos absolutos, no solo relativos.
+3. **Cumplir una de estas dos vías:**
+   - **El pico:** Superar en **1.2×** la mediana histórica de tu carrera (una temporada inolvidable).
+   - **La élite:** Alcanzar **19.5+** puntos, sin importar la mediana (para carreras tan constantes que ningún año sobresale fácilmente).
 
-1. **2,000+ raw contributions.** No Ballon d'Or on a quiet year, however spiky it looks against the rest.
-2. **Score 16+.** Strong in absolute terms, not just relative ones.
-3. **One of two paths:**
-   - *The spike*: 1.2× your career-median year. One undeniable season in a modest career.
-   - *The elite*: score 19.5+, ratio waived. A sustained-great career has a huge median no single year can tower over, and those years are exactly what the award exists for.
+Los títulos repetidos dependen de tu **OVR**: **80** desbloquea el 1.º, **87** el 2.º y **94** el 3.º. Los **Íconos** pueden ganar un 4.º solo con un año monstruoso (**28+** puntos). El año en curso compite mientras avanza, pero sin proyecciones: solo gana si ya superó los umbrales reales.
 
-Repeats climb a ladder on the card's overall: **80** holds one, **87** unlocks a second, **94** a third. Icons can take a fourth, and only for a monster year (score 28+). The current year competes while still in progress. It can only under-score, never over-score, so nothing is ever awarded on a projection.
+#### 🌍 Balón de Oro del Mundial
+Uno por edición de la Copa del Mundo. Para candidatos con **OVR 80+** y actividad en un año mundialista, se evalúan las contribuciones dentro de la ventana exacta del torneo, ajustadas a su época:
 
-#### WC Golden Ball
+| Edición | Ventana del torneo | Exigencia |
+| :--- | :--- | :--- |
+| **Sudáfrica 2010** | 11 jun – 11 jul | Presencia activa: aportar en GitHub en 2010 ya era mérito suficiente. |
+| **Brasil 2014** | 12 jun – 13 jul | Un puñado sólido de contribuciones. |
+| **Rusia 2018** | 14 jun – 15 jul | Actividad real a un ritmo de **1.2×** respecto a tu media anual. |
+| **Catar 2022** | 20 nov – 18 dic | Ventana intensa (~10 contribuciones/día) a **1.3×** de tu ritmo habitual. |
+| **Norteamérica 2026** | 11 jun – 19 jul | Ventana intensa (~10 contribuciones/día) a **1.3×** de tu ritmo habitual. |
 
-One per World Cup edition. For candidates (overall 80+, activity in a WC year) the scout fetches contributions inside each tournament window and judges them era-adjusted, because GitHub in 2010 was a different sport:
+La prueba de ritmo compara tu promedio diario durante el torneo frente a tu promedio diario en ese mismo año (en el año en curso se divide entre los días transcurridos, nunca entre 365).
 
-| Edition | Window | The bar |
-| :-- | :-- | :-- |
-| South Africa 2010 | Jun 11 – Jul 11 | Presence. Shipping on GitHub at all was the distinction. |
-| Brazil 2014 | Jun 12 – Jul 13 | A handful of contributions. |
-| Russia 2018 | Jun 14 – Jul 15 | A real window, at **1.2×** your usual pace. |
-| Qatar 2022 | Nov 20 – Dec 18 | A strong window (~10 contributions/day), at **1.3×** your usual pace. |
-| North America 2026 | Jun 11 – Jul 19 | A strong window (~10 contributions/day), at **1.3×** your usual pace. |
+#### 🥾 Bota de Oro
+Es el único trofeo ligado al **estado de forma actual**, no vitalicio. Se reevalúa en cada análisis: requiere una posición ofensiva (`DC` / `ED` / `MCO`) y **Tiro 80+**. Si baja tu forma, pierdes la bota.
 
-The pace test compares your daily rate inside the window to your daily rate across that same year. Tournament form means rising above *your own* pace, not an absolute quota. The current year is paced over its elapsed days, not 365, so a routine mid-year can't masquerade as tournament form against a diluted average.
+#### 🏆 Trofeo de la Copa del Mundo
+España ganó el Mundial 2026 y cada perfil cuya ubicación en GitHub indique España levanta la copa: sin mínimo de OVR ni condiciones extra (cartas de bronce incluidas). Se basa en la ubicación reportada por GitHub, no en el parámetro visual `?country=ES`.
 
-#### Golden Boot
+> Toda la vitrina se calcula en el servidor al momento del ojeo y se almacena en caché junto con la carta.
 
-The one trophy held on current form, not kept for life. No year attached, re-judged on every scout: a scoring position (`ST`/`RW`/`CAM`) and Shooting 80+. Star power *is* the shooting stat, so this is the finisher whose repos keep hitting the net. Lose the form, lose the boot.
-
-#### World Cup Trophy
-
-Spain won WC26, and every profile whose GitHub location reads Spain lifts the trophy with them: bronze cards included, no floors, no other conditions. It keys off the country GitHub reports, decided before the flag picker exists, so switching your flag to 🇪🇸 mints nothing.
-
-The whole cabinet is computed server-side at scout time and cached with the card. Duels never award anything. A corner showcases what each card walked in with.
-
-<br/>
+---
 
 <div align="center">
 
-**Built with** Next.js · TypeScript · Tailwind · Redis
+**Construido con** Next.js · TypeScript · Tailwind CSS · Redis
 
-**[gitfut.com](https://gitfut.com)** &nbsp;·&nbsp; scout someone today
+**[gitfut.com](https://gitfut.com)** &nbsp;·&nbsp; evalúa un perfil hoy mismo
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=90&color=0:39d353,100:006d32&section=footer" alt="" width="100%">
 
